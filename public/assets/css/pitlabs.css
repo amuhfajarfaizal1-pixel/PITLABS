@@ -1,0 +1,381 @@
+/* ==========================================================================
+   PITLABS design system — Fase 2
+   Dimuat SETELAH Bootstrap 5.3.3. Bagian 1 = token, 2 = override Bootstrap,
+   3+ = komponen PITLABS (prefix .pit-).
+   Aturan warna: lihat docs/DESIGN_SYSTEM.md
+   ========================================================================== */
+
+/* 1. TOKEN -------------------------------------------------------------- */
+:root {
+  /* Brand */
+  --pit-navy: #0A2540;
+  --pit-sapphire: #1463FF;
+  --pit-cyan: #00A3FF;
+  --pit-turquoise: #00F5D4;
+  --pit-gray: #E9ECEF;
+  --pit-white: #FFFFFF;
+  --pit-orange: #F97316;            /* HANYA CTA "Beli via Shopee" (provisional, tunggu mitra) */
+
+  /* Turunan netral (dari navy) */
+  --pit-ink: #0A2540;               /* judul */
+  --pit-text: #2F4358;              /* teks isi */
+  --pit-muted: #566879;             /* teks sekunder */
+  --pit-surface: #F5F7FA;           /* latar section selang-seling */
+  --pit-sapphire-hover: #0F52DB;
+  --pit-sapphire-active: #0B44B8;
+  --pit-sapphire-soft: #E8F0FF;
+
+  /* Status (teks selalu pendamping warna) */
+  --pit-success-bg: #E3F7EF;  --pit-success-fg: #0B6B52;
+  --pit-warning-bg: #FFF4C7;  --pit-warning-fg: #7A5200;   /* kuning, BUKAN oranye */
+  --pit-danger-bg:  #FDE8E6;  --pit-danger-fg:  #A4231A;
+  --pit-info-bg:    #E8F0FF;  --pit-info-fg:    #0F4FC9;
+  --pit-progress-bg:#E0F3FF;  --pit-progress-fg:#005C8A;
+  --pit-neutral-bg: #E9ECEF;  --pit-neutral-fg: #3D4F61;
+
+  /* Tipografi */
+  --pit-font-display: 'Sora', system-ui, sans-serif;
+  --pit-font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --pit-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  /* Radius */
+  --pit-radius-sm: 8px;      /* badge, tag */
+  --pit-radius-md: 12px;     /* tombol, input */
+  --pit-radius-lg: 16px;     /* kartu */
+  --pit-radius-xl: 24px;     /* panel besar / hero */
+  --pit-radius-pill: 999px;
+
+  /* Bayangan */
+  --pit-shadow-sm: 0 1px 2px rgba(10, 37, 64, .06), 0 1px 1px rgba(10, 37, 64, .04);
+  --pit-shadow-md: 0 12px 28px -12px rgba(10, 37, 64, .22);
+  --pit-focus-ring: 0 0 0 3px rgba(20, 99, 255, .35);
+
+  /* Spasi section (skala 4 px; Bootstrap spacer 1–5 = 4/8/16/24/48 px) */
+  --pit-section-y: clamp(3rem, 6vw, 5.5rem);
+  --pit-navbar-h: 72px;
+
+  /* Override variabel Bootstrap */
+  --bs-primary: var(--pit-sapphire);
+  --bs-primary-rgb: 20, 99, 255;
+  --bs-link-color: var(--pit-sapphire);
+  --bs-link-color-rgb: 20, 99, 255;
+  --bs-link-hover-color: var(--pit-sapphire-active);
+  --bs-body-font-family: var(--pit-font-body);
+  --bs-body-font-size: 1rem;
+  --bs-body-line-height: 1.65;
+  --bs-body-color: var(--pit-text);
+  --bs-body-color-rgb: 47, 67, 88;
+  --bs-body-bg: #FFFFFF;
+  --bs-heading-color: var(--pit-ink);
+  --bs-border-color: var(--pit-gray);
+  --bs-border-radius: var(--pit-radius-md);
+  --bs-border-radius-lg: var(--pit-radius-lg);
+  --bs-focus-ring-color: rgba(20, 99, 255, .35);
+}
+
+/* 2. DASAR & TIPOGRAFI -------------------------------------------------- */
+html { scroll-padding-top: calc(var(--pit-navbar-h) + 16px); }
+body { -webkit-font-smoothing: antialiased; }
+main:focus { outline: none; }
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--pit-font-display);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+h1, .h1 { font-size: clamp(2rem, 1.3rem + 2.6vw, 3rem); line-height: 1.1; letter-spacing: -0.025em; }
+h2, .h2 { font-size: clamp(1.5rem, 1.15rem + 1.3vw, 2.125rem); }
+h3, .h3 { font-size: clamp(1.2rem, 1.05rem + .6vw, 1.5rem); }
+h4, .h4 { font-size: 1.125rem; }
+
+.pit-display {                      /* headline hero */
+  font-family: var(--pit-font-display);
+  font-weight: 800;
+  font-size: clamp(2.5rem, 1.4rem + 4.6vw, 4.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+}
+.pit-lead { font-size: clamp(1.0625rem, 1rem + .3vw, 1.25rem); line-height: 1.6; color: var(--pit-text); max-width: 60ch; }
+.pit-prose { max-width: 68ch; }
+.text-muted-pit { color: var(--pit-muted); }
+.pit-mono { font-family: var(--pit-font-mono); font-weight: 500; font-size: .9em; letter-spacing: 0; }
+
+/* Eyebrow: sentence case. Cyan hanya di atas latar navy; di latar terang pakai sapphire. */
+.pit-eyebrow { display: inline-block; font-size: .875rem; font-weight: 600; letter-spacing: .01em; color: var(--pit-sapphire); margin-bottom: .5rem; }
+.pit-on-navy .pit-eyebrow { color: var(--pit-cyan); }
+
+.pit-section { padding-block: var(--pit-section-y); }
+.pit-section--alt { background: var(--pit-surface); }
+.pit-section--navy { background: var(--pit-navy); color: #D5E3F2; }
+.pit-section--navy h1, .pit-section--navy h2, .pit-section--navy h3 { color: #fff; }
+.pit-on-navy { color: #D5E3F2; }
+
+.pit-required { color: var(--pit-danger-fg); }
+
+/* Fokus terlihat di semua elemen interaktif */
+:focus-visible { outline: 3px solid rgba(20, 99, 255, .55); outline-offset: 2px; }
+.pit-on-navy :focus-visible, .pit-footer :focus-visible, .pit-ai-fab:focus-visible { outline-color: var(--pit-turquoise); }
+
+.pit-skip-link {
+  position: absolute; left: 12px; top: -64px; z-index: 2000;
+  background: var(--pit-navy); color: #fff; padding: .6rem 1rem; border-radius: var(--pit-radius-md);
+  font-weight: 600; text-decoration: none; transition: top .15s;
+}
+.pit-skip-link:focus { top: 12px; color: #fff; }
+
+/* 3. TOMBOL ------------------------------------------------------------- */
+.btn {
+  --bs-btn-padding-x: 1.25rem;
+  --bs-btn-padding-y: .625rem;
+  --bs-btn-font-weight: 600;
+  --bs-btn-font-size: .9375rem;
+  --bs-btn-border-radius: var(--pit-radius-md);
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  min-height: 44px; line-height: 1.3;
+}
+.btn:focus-visible { box-shadow: var(--pit-focus-ring); outline: none; }
+.btn-lg { --bs-btn-padding-x: 1.5rem; --bs-btn-padding-y: .8rem; --bs-btn-font-size: 1rem; min-height: 52px; }
+.btn-sm { --bs-btn-padding-x: .875rem; --bs-btn-padding-y: .35rem; --bs-btn-font-size: .875rem; min-height: 44px; }
+
+.btn-primary {
+  --bs-btn-color: #fff; --bs-btn-bg: var(--pit-sapphire); --bs-btn-border-color: var(--pit-sapphire);
+  --bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--pit-sapphire-hover); --bs-btn-hover-border-color: var(--pit-sapphire-hover);
+  --bs-btn-active-color: #fff; --bs-btn-active-bg: var(--pit-sapphire-active); --bs-btn-active-border-color: var(--pit-sapphire-active);
+  --bs-btn-disabled-color: #fff; --bs-btn-disabled-bg: var(--pit-sapphire); --bs-btn-disabled-border-color: var(--pit-sapphire);
+  --bs-btn-focus-shadow-rgb: 20, 99, 255;
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--pit-sapphire); --bs-btn-border-color: var(--pit-sapphire);
+  --bs-btn-hover-color: var(--pit-sapphire-active); --bs-btn-hover-bg: var(--pit-sapphire-soft); --bs-btn-hover-border-color: var(--pit-sapphire);
+  --bs-btn-active-color: var(--pit-sapphire-active); --bs-btn-active-bg: #D6E4FF; --bs-btn-active-border-color: var(--pit-sapphire);
+  --bs-btn-disabled-color: var(--pit-sapphire); --bs-btn-disabled-border-color: var(--pit-sapphire);
+}
+.btn-soft {                           /* aksi sekunder */
+  --bs-btn-color: var(--pit-navy); --bs-btn-bg: var(--pit-gray); --bs-btn-border-color: var(--pit-gray);
+  --bs-btn-hover-color: var(--pit-navy); --bs-btn-hover-bg: #DDE2E7; --bs-btn-hover-border-color: #DDE2E7;
+  --bs-btn-active-color: var(--pit-navy); --bs-btn-active-bg: #CFD5DB; --bs-btn-active-border-color: #CFD5DB;
+  --bs-btn-disabled-color: var(--pit-navy); --bs-btn-disabled-bg: var(--pit-gray); --bs-btn-disabled-border-color: var(--pit-gray);
+}
+.btn-navy {
+  --bs-btn-color: #fff; --bs-btn-bg: var(--pit-navy); --bs-btn-border-color: var(--pit-navy);
+  --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #12365B; --bs-btn-hover-border-color: #12365B;
+  --bs-btn-active-color: #fff; --bs-btn-active-bg: #06182B; --bs-btn-active-border-color: #06182B;
+}
+.btn-on-dark {                        /* tombol sekunder di atas navy (hero) */
+  --bs-btn-color: #fff; --bs-btn-bg: transparent; --bs-btn-border-color: rgba(255, 255, 255, .4);
+  --bs-btn-hover-color: #fff; --bs-btn-hover-bg: rgba(255, 255, 255, .1); --bs-btn-hover-border-color: #fff;
+  --bs-btn-active-color: #fff; --bs-btn-active-bg: rgba(255, 255, 255, .18); --bs-btn-active-border-color: #fff;
+}
+.btn-ghost {
+  --bs-btn-color: var(--pit-sapphire); --bs-btn-bg: transparent; --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: var(--pit-sapphire-active); --bs-btn-hover-bg: var(--pit-sapphire-soft); --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-color: var(--pit-sapphire-active); --bs-btn-active-bg: #D6E4FF; --bs-btn-active-border-color: transparent;
+}
+/* Oranye: satu-satunya penggunaan. Teks navy agar kontras ≥ 4.5:1 (putih di #F97316 hanya 2.8:1). */
+.btn-shopee {
+  --bs-btn-color: var(--pit-navy); --bs-btn-bg: var(--pit-orange); --bs-btn-border-color: var(--pit-orange);
+  --bs-btn-hover-color: var(--pit-navy); --bs-btn-hover-bg: #EA6A0A; --bs-btn-hover-border-color: #EA6A0A;
+  --bs-btn-active-color: var(--pit-navy); --bs-btn-active-bg: #E6660B; --bs-btn-active-border-color: #E6660B;
+  --bs-btn-disabled-color: var(--pit-navy); --bs-btn-disabled-bg: var(--pit-orange); --bs-btn-disabled-border-color: var(--pit-orange);
+  --bs-btn-focus-shadow-rgb: 249, 115, 22;
+}
+.btn.disabled, .btn:disabled { opacity: .55; }
+
+/* 4. FORM --------------------------------------------------------------- */
+.form-label { font-weight: 600; font-size: .9375rem; color: var(--pit-ink); margin-bottom: .375rem; }
+.form-control, .form-select {
+  min-height: 48px; padding: .65rem .9rem; border-radius: var(--pit-radius-md);
+  border: 1px solid #7D90A3; color: var(--pit-ink); font-size: 1rem;
+}
+.form-control::placeholder { color: #5F7080; }
+.form-control:hover:not(:disabled):not(:focus), .form-select:hover:not(:disabled):not(:focus) { border-color: #5E7388; }
+.form-control:focus, .form-select:focus { border-color: var(--pit-sapphire); box-shadow: var(--pit-focus-ring); }
+.form-control:disabled, .form-select:disabled { background: var(--pit-surface); color: var(--pit-muted); }
+.form-control.is-invalid, .form-select.is-invalid { border-color: var(--pit-danger-fg); background-image: none; padding-right: .9rem; }
+.form-control.is-invalid:focus { box-shadow: 0 0 0 3px rgba(164, 35, 26, .25); }
+.form-text { color: var(--pit-muted); font-size: .875rem; }
+.invalid-feedback { color: var(--pit-danger-fg); font-size: .875rem; font-weight: 500; }
+.form-check-input { width: 1.25rem; height: 1.25rem; margin-top: .15rem; border-color: #7D90A3; }
+.form-check-input:checked { background-color: var(--pit-sapphire); border-color: var(--pit-sapphire); }
+.form-check-input:focus { box-shadow: var(--pit-focus-ring); border-color: var(--pit-sapphire); }
+
+/* 5. KARTU -------------------------------------------------------------- */
+.pit-card {
+  background: #fff; border: 1px solid var(--pit-gray); border-radius: var(--pit-radius-lg);
+  box-shadow: var(--pit-shadow-sm); padding: 1.5rem; height: 100%;
+}
+.pit-card--flush { padding: 0; overflow: hidden; }
+.pit-card--link { display: block; color: inherit; text-decoration: none; transition: box-shadow .2s, border-color .2s; }
+.pit-card--link:hover { border-color: #B8CFFF; box-shadow: var(--pit-shadow-md); }
+
+/* 6. NAVBAR ------------------------------------------------------------- */
+.pit-navbar { position: sticky; top: 0; z-index: 1030; background: rgba(255, 255, 255, .96); backdrop-filter: saturate(1.4) blur(8px); border-bottom: 1px solid var(--pit-gray); }
+.pit-navbar .navbar { min-height: var(--pit-navbar-h); padding-block: .25rem; }
+.pit-navbar .navbar-brand { padding: 0; margin-right: 1.5rem; }
+.pit-navbar .navbar-brand img { height: 52px; width: auto; display: block; }
+.pit-navbar .navbar-toggler { border: 1px solid var(--pit-gray); border-radius: var(--pit-radius-md); min-width: 44px; min-height: 44px; font-size: 1.5rem; color: var(--pit-navy); padding: 0; }
+.pit-navbar .navbar-toggler:focus { box-shadow: var(--pit-focus-ring); }
+.pit-navbar .nav-link, .pit-nav-button {
+  color: var(--pit-navy); font-weight: 600; font-size: .9375rem; min-height: 44px;
+  display: inline-flex; align-items: center; gap: .5rem; padding: .5rem .85rem; border-radius: var(--pit-radius-md);
+  background: none; border: 0; text-align: left;
+}
+.pit-navbar .nav-link:hover, .pit-nav-button:hover { background: var(--pit-sapphire-soft); color: var(--pit-sapphire-active); }
+.pit-navbar .nav-link.active { color: var(--pit-sapphire-active); background: var(--pit-sapphire-soft); }
+.pit-nav-pending { color: var(--pit-muted) !important; cursor: not-allowed; }
+.pit-nav-pending:hover { background: none !important; }
+.pit-navbar .dropdown-menu { border: 1px solid var(--pit-gray); border-radius: var(--pit-radius-lg); box-shadow: var(--pit-shadow-md); padding: .5rem; }
+.pit-navbar .dropdown-item { border-radius: var(--pit-radius-sm); padding: .6rem .75rem; min-height: 44px; display: flex; align-items: center; font-weight: 500; color: var(--pit-navy); }
+.pit-navbar .dropdown-item:hover { background: var(--pit-sapphire-soft); }
+.pit-navbar .dropdown-item.active { background: var(--pit-sapphire-soft); color: var(--pit-sapphire-active); }
+@media (max-width: 991.98px) {
+  .pit-navbar .navbar-collapse { padding: .75rem 0 1rem; }
+  .pit-navbar .dropdown-menu { box-shadow: none; border: 0; padding-left: 1rem; }
+}
+
+/* Tag "Segera Hadir" */
+.pit-tag-soon {
+  display: inline-flex; align-items: center; padding: .1rem .5rem; border-radius: var(--pit-radius-pill);
+  background: var(--pit-sapphire-soft); color: var(--pit-info-fg); font-size: .75rem; font-weight: 700; line-height: 1.5; white-space: nowrap;
+}
+.pit-tag-soon--on-dark { background: rgba(0, 245, 212, .16); color: var(--pit-turquoise); }
+
+/* 7. FOOTER ------------------------------------------------------------- */
+.pit-footer { background: var(--pit-navy); color: #C3D3E4; padding: 4rem 0 2rem; margin-top: 0; }
+.pit-footer__logo { display: inline-block; background: #fff; border-radius: var(--pit-radius-lg); padding: .25rem 1rem; margin-bottom: 1rem; }
+.pit-footer__logo img { height: 48px; width: auto; display: block; }
+.pit-footer__tagline { color: #fff; font-family: var(--pit-font-display); font-weight: 600; margin-bottom: .5rem; }
+.pit-footer__text { max-width: 44ch; margin: 0; }
+.pit-footer__heading { font-size: 1rem; color: #fff; margin-bottom: 1rem; }
+.pit-footer__links li { margin-bottom: .25rem; }
+.pit-footer__links a { color: #C3D3E4; text-decoration: none; display: inline-block; padding: .4rem 0; min-height: 44px; }
+.pit-footer__links a:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.pit-footer__contact dt { font-size: .8125rem; font-weight: 600; color: #8FA7BF; margin-top: .75rem; }
+.pit-footer__contact dd { margin: 0; color: #fff; }
+.pit-footer__bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 2rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, .14); font-size: .875rem; color: #8FA7BF; }
+
+/* 8. BADGE STATUS & DATA PENDING --------------------------------------- */
+.pit-badge {
+  display: inline-flex; align-items: center; gap: .375rem; padding: .25rem .65rem; border-radius: var(--pit-radius-pill);
+  font-size: .8125rem; font-weight: 700; line-height: 1.4; white-space: nowrap;
+}
+.pit-badge .bi { font-size: .875em; }
+.pit-badge--success  { background: var(--pit-success-bg);  color: var(--pit-success-fg); }
+.pit-badge--warning  { background: var(--pit-warning-bg);  color: var(--pit-warning-fg); }
+.pit-badge--danger   { background: var(--pit-danger-bg);   color: var(--pit-danger-fg); }
+.pit-badge--info     { background: var(--pit-info-bg);     color: var(--pit-info-fg); }
+.pit-badge--progress { background: var(--pit-progress-bg); color: var(--pit-progress-fg); }
+.pit-badge--neutral  { background: var(--pit-neutral-bg);  color: var(--pit-neutral-fg); }
+
+.pit-pending { color: var(--pit-muted); font-style: italic; text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+.pit-pending--dark { color: #A9BCD0; }
+
+/* 9. ALERT -------------------------------------------------------------- */
+.pit-alert { display: flex; gap: .75rem; padding: 1rem 1.125rem; border-radius: var(--pit-radius-md); border: 1px solid transparent; }
+.pit-alert__icon { font-size: 1.125rem; line-height: 1.5; flex: none; }
+.pit-alert__title { font-weight: 700; margin: 0 0 .125rem; }
+.pit-alert__body { font-size: .9375rem; }
+.pit-alert__body > :last-child { margin-bottom: 0; }
+.pit-alert--info    { background: var(--pit-info-bg);    color: var(--pit-info-fg);    border-color: #C7DAFF; }
+.pit-alert--success { background: var(--pit-success-bg); color: var(--pit-success-fg); border-color: #B5E8D5; }
+.pit-alert--warning { background: var(--pit-warning-bg); color: var(--pit-warning-fg); border-color: #F2DE8F; }
+.pit-alert--danger  { background: var(--pit-danger-bg);  color: var(--pit-danger-fg);  border-color: #F6BDB8; }
+
+/* 10. STATE KOSONG & LOADING ------------------------------------------- */
+.pit-empty { text-align: center; padding: 2.5rem 1.5rem; border: 1px dashed #C5CED8; border-radius: var(--pit-radius-lg); background: #fff; }
+.pit-empty__icon { font-size: 2.25rem; color: var(--pit-sapphire); }
+.pit-empty__title { font-size: 1.125rem; margin: .5rem 0 .25rem; }
+.pit-empty__text { color: var(--pit-muted); max-width: 44ch; margin: 0 auto 1rem; }
+.pit-empty__action:empty { display: none; }
+
+.pit-skeleton { display: block; border-radius: var(--pit-radius-sm); background: linear-gradient(90deg, var(--pit-gray) 25%, #F4F6F8 50%, var(--pit-gray) 75%); background-size: 200% 100%; animation: pit-shimmer 1.4s linear infinite; }
+.pit-skeleton--line { height: .875rem; margin-bottom: .6rem; }
+.pit-skeleton--block { height: 140px; border-radius: var(--pit-radius-md); margin-bottom: 1rem; }
+@keyframes pit-shimmer { to { background-position: -200% 0; } }
+
+/* 11. MODAL ------------------------------------------------------------- */
+.pit-modal { border: 0; border-radius: var(--pit-radius-xl); box-shadow: var(--pit-shadow-md); }
+.pit-modal .modal-header { border-bottom: 0; padding: 1.5rem 1.5rem .5rem; }
+.pit-modal .modal-title { font-size: 1.25rem; }
+.pit-modal .modal-body { padding: .5rem 1.5rem 1rem; }
+.pit-modal .modal-footer { border-top: 0; padding: .5rem 1.5rem 1.5rem; gap: .5rem; }
+.pit-modal .btn-close:focus { box-shadow: var(--pit-focus-ring); }
+.modal-backdrop { --bs-backdrop-bg: #0A2540; --bs-backdrop-opacity: .55; }
+
+/* 12. AI TECHNICAL ASSISTANT (tombol melayang) ------------------------- */
+.pit-ai-fab {
+  position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1040;
+  display: inline-flex; align-items: center; gap: .625rem; min-height: 52px; padding: .5rem 1rem .5rem .9rem;
+  background: var(--pit-navy); color: #fff; border: 1px solid rgba(255, 255, 255, .18); border-radius: var(--pit-radius-pill);
+  box-shadow: 0 14px 30px -10px rgba(10, 37, 64, .55); font-weight: 600; font-size: .9375rem;
+}
+.pit-ai-fab:hover { background: #12365B; }
+.pit-ai-fab .bi { color: var(--pit-turquoise); font-size: 1.25rem; }
+@media (max-width: 575.98px) {
+  .pit-ai-fab { right: .875rem; bottom: .875rem; width: 56px; height: 56px; padding: 0; justify-content: center; }
+  .pit-ai-fab__label, .pit-ai-fab .pit-tag-soon { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* 13. HALAMAN DESIGN SYSTEM (hanya untuk /design-system) --------------- */
+.pit-swatch { border-radius: var(--pit-radius-lg); overflow: hidden; border: 1px solid var(--pit-gray); background: #fff; height: 100%; }
+.pit-swatch__color { height: 88px; }
+.pit-swatch__meta { padding: .75rem 1rem 1rem; font-size: .875rem; }
+.pit-swatch__meta strong { display: block; color: var(--pit-ink); }
+.pit-spec { display: grid; grid-template-columns: 8rem 1fr; gap: .5rem 1rem; align-items: baseline; padding: .75rem 0; border-bottom: 1px solid var(--pit-gray); }
+.pit-spec:last-child { border-bottom: 0; }
+.pit-spec__label { font-size: .8125rem; color: var(--pit-muted); font-weight: 600; }
+.pit-radius-demo { width: 72px; height: 72px; background: var(--pit-sapphire-soft); border: 2px solid var(--pit-sapphire); }
+.pit-space-demo { height: 16px; background: var(--pit-cyan); border-radius: 2px; }
+
+/* 14. PREFERENSI GERAK -------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+/* 15. TAUTAN & ACCORDION (Fase 3) -------------------------------------- */
+.pit-link {
+  color: var(--pit-sapphire); font-weight: 600;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;
+}
+.pit-link:hover { color: var(--pit-sapphire-active); text-decoration-thickness: 2px; }
+.pit-link .bi { font-size: .75em; margin-left: .25em; vertical-align: .05em; }
+
+.pit-accordion {
+  --bs-accordion-bg: transparent;
+  --bs-accordion-border-color: #C9D3DE;
+  --bs-accordion-btn-color: var(--pit-ink);
+  --bs-accordion-active-color: var(--pit-sapphire-active);
+  --bs-accordion-active-bg: transparent;
+  --bs-accordion-btn-focus-box-shadow: var(--pit-focus-ring);
+  --bs-accordion-btn-padding-y: 1.125rem;
+  --bs-accordion-btn-padding-x: 0;
+  --bs-accordion-body-padding-x: 0;
+}
+.pit-accordion .accordion-button { font-weight: 600; font-size: 1.0625rem; min-height: 44px; box-shadow: none; }
+.pit-accordion .accordion-button:not(.collapsed) { box-shadow: none; }
+.pit-accordion .accordion-body { padding-top: 0; max-width: 68ch; }
+
+/* 16. FIELD KATA SANDI, TOMBOL GOOGLE, BREADCRUMB (Fase 4) ------------- */
+.pit-pw { position: relative; }
+.pit-pw .form-control { padding-right: 3.25rem; }
+.pit-pw__toggle { position: absolute; top: 0; right: 0; width: 48px; height: 48px; border: 0; background: transparent; color: var(--pit-muted); border-radius: var(--pit-radius-md); font-size: 1.125rem; }
+.pit-pw__toggle:hover { color: var(--pit-navy); }
+.pit-pw__toggle:focus-visible { box-shadow: var(--pit-focus-ring); outline: none; }
+.pit-pw:has(.is-invalid) ~ .invalid-feedback { display: block; }
+
+.btn-google {
+  --bs-btn-color: var(--pit-navy); --bs-btn-bg: #fff; --bs-btn-border-color: #7D90A3;
+  --bs-btn-hover-color: var(--pit-navy); --bs-btn-hover-bg: var(--pit-surface); --bs-btn-hover-border-color: var(--pit-navy);
+  --bs-btn-active-color: var(--pit-navy); --bs-btn-active-bg: var(--pit-gray); --bs-btn-active-border-color: var(--pit-navy);
+}
+.btn-google .bi { font-size: 1.125rem; }
+
+.pit-divider { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; color: var(--pit-muted); font-size: .875rem; }
+.pit-divider::before, .pit-divider::after { content: ""; flex: 1; height: 1px; background: var(--pit-gray); }
+
+.pit-breadcrumb { margin-bottom: 1.25rem; font-size: .875rem; }
+.pit-breadcrumb ol { display: flex; flex-wrap: wrap; gap: .25rem; list-style: none; margin: 0; padding: 0; }
+.pit-breadcrumb li + li::before { content: "/"; margin-right: .25rem; color: #8EA0B2; }
+.pit-breadcrumb a { color: var(--pit-sapphire); text-underline-offset: 3px; }
+.pit-breadcrumb li[aria-current] { color: var(--pit-muted); }

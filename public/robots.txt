@@ -1,0 +1,8 @@
+# Ganti DOMAIN-ANDA dengan domain produksi saat deploy (Fase 7).
+User-agent: *
+Allow: /
+Disallow: /masuk
+Disallow: /daftar
+Disallow: /design-system
+
+Sitemap: https://DOMAIN-ANDA/sitemap.xml

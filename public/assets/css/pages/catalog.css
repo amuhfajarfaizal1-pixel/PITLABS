@@ -1,0 +1,35 @@
+/* Katalog, detail produk, cek ketersediaan — Fase 4 */
+
+/* Bar pencarian & filter */
+.pit-filterbar { display: grid; gap: 1rem; padding: 1.25rem; background: #fff; border: 1px solid var(--pit-gray); border-radius: var(--pit-radius-lg); box-shadow: var(--pit-shadow-sm); align-items: end; }
+.pit-filterbar .form-label { margin-bottom: .25rem; }
+.pit-filterbar__actions { display: flex; gap: .5rem; }
+.pit-filterbar__field--check { min-height: 48px; display: flex; align-items: center; }
+@media (min-width: 768px) {
+  .pit-filterbar { grid-template-columns: 1fr 12rem auto auto; }
+  .pit-filterbar__field--check { padding-bottom: 0; }
+}
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  .pit-filterbar { grid-template-columns: 1fr 1fr; }
+  .pit-filterbar__field--grow { grid-column: 1 / -1; }
+}
+
+/* Detail produk */
+.pit-detail__media { aspect-ratio: 4 / 3; display: grid; place-items: center; font-size: clamp(4rem, 12vw, 7rem); border-radius: var(--pit-radius-xl); }
+.pit-detail__media.pit-product__media--physical { background: var(--pit-sapphire-soft); color: var(--pit-sapphire); }
+.pit-detail__media.pit-product__media--digital  { background: var(--pit-progress-bg); color: var(--pit-progress-fg); }
+
+.pit-price { display: grid; gap: .5rem; padding: 1rem 1.25rem; margin-bottom: 1.5rem; background: var(--pit-surface); border-radius: var(--pit-radius-lg); }
+.pit-price__row { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.pit-price__row > span:first-child { font-weight: 600; color: var(--pit-ink); }
+
+.pit-anchors { display: flex; flex-wrap: wrap; gap: .5rem; }
+.pit-anchors a { display: inline-flex; align-items: center; min-height: 44px; padding: .25rem .9rem; border: 1px solid #C9D3DE; border-radius: var(--pit-radius-pill); color: var(--pit-navy); font-weight: 600; font-size: .875rem; text-decoration: none; }
+.pit-anchors a:hover { background: var(--pit-sapphire-soft); border-color: var(--pit-sapphire); color: var(--pit-sapphire-active); }
+
+.pit-detail__section { padding-block: 1.75rem; border-top: 1px solid var(--pit-gray); }
+.pit-detail__section:first-child { border-top: 0; padding-top: 0; }
+.pit-detail__section h2 { font-size: 1.375rem; margin-bottom: .75rem; }
+
+.pit-unit-table th, .pit-spec-table th { font-size: .875rem; color: var(--pit-muted); font-weight: 600; }
+.pit-spec-table th[scope="row"] { width: 35%; color: var(--pit-ink); }
