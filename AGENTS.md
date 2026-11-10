@@ -1,7 +1,7 @@
 # AGENTS.md — Pedoman wajib untuk AI agent dan developer
 
 ## A. Konteks
-PITLABS: platform web penyewaan perangkat AI/IoT (sewa internal + beli via Shopee). Stack **Laravel + Blade + Bootstrap 5**. **Fase saat ini: frontend selesai sampai Fase 4; backend belum dikerjakan.** Ringkasan di [README.md](README.md), detail di [docs/PROJECT_DOCUMENTATION.md](docs/PROJECT_DOCUMENTATION.md).
+PITLABS: platform web penyewaan perangkat AI/IoT (sewa internal + beli via Shopee). Stack **Laravel + Blade + Bootstrap 5**. **Fase saat ini: frontend selesai sampai Fase 4; backend dikerjakan bertahap sejak 5A (database + autentikasi).** Ringkasan di [README.md](README.md), detail di [docs/PROJECT_DOCUMENTATION.md](docs/PROJECT_DOCUMENTATION.md).
 
 ## B. Aturan wajib
 1. Baca [README.md](README.md), [docs/PROJECT_DOCUMENTATION.md](docs/PROJECT_DOCUMENTATION.md), [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md), dan file ini **sebelum** mengubah apa pun.
@@ -30,8 +30,14 @@ Jangan mengganti palet, identitas visual, atau struktur layout; jangan membuat v
 - Controller tipis; data dari `app/Support/Mock*` sampai Fase 5.
 - Setiap tautan/tombol harus berfungsi atau dijelaskan (jangan tombol mati).
 
-## E. Pemisahan frontend dan backend
-Saat ini **hanya frontend**. Dilarang tanpa persetujuan eksplisit: mengubah database, membuat migration, membuat API/logika bisnis, mengubah autentikasi, menghapus `DemoAuth`/`Mock*`. `DemoAuth`, `DemoRole`, dan `Mock*` ditandai sebagai simulasi dan akan diganti di Fase 5.
+## E. Frontend dan backend
+Pemilik telah mengizinkan backend **bertahap**, hanya untuk batch yang disetujui. Selesai: **5A** (migration users/categories/products/inventory_units, seeder, Laravel Auth, role CUSTOMER/ADMIN, profil dan ganti kata sandi, daftar pelanggan admin). **Belum disetujui:** katalog dari database + CRUD admin (5B), Google OAuth, booking dan checkout, payment gateway/webhook, pengambilan/pengembalian/denda/laporan.
+- Kerjakan satu batch per persetujuan; jangan melompat ke batch berikutnya.
+- Setiap batch menggantikan **satu** kelas `Mock*` tanpa mengubah tampilan; hapus kelas simulasi hanya setelah tidak ada yang memakainya (`grep`).
+- `role`, `is_active`, `google_id` tidak mass-assignable; jangan diubah. Otorisasi di server (`auth` + `EnsureRole`), bukan hanya menyembunyikan menu.
+- Kata sandi/rahasia tidak boleh ditulis di kode atau commit (`.env` tidak di-commit). Tambahkan tes untuk perilaku baru.
+- Perubahan skema lewat migration baru; jangan mengedit migration yang sudah dijalankan.
+- Data yang masih `Mock*`: katalog, ketersediaan, pesanan, pelanggan-antrean, laporan.
 
 ## F. Dokumentasi
 Setiap pekerjaan selesai: perbarui [docs/DEVELOPMENT_LOG.md](docs/DEVELOPMENT_LOG.md) (fase, file terdampak, status, yang masih simulasi) dan dokumen terkait. Jangan mengklaim "selesai" jika belum diuji.

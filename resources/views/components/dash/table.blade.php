@@ -60,6 +60,11 @@
                                                 <button type="button" class="btn btn-sm btn-{{ $a['variant'] ?? 'soft' }}" data-sim-action
                                                         data-pit-sim data-sim-row="#row-{{ $row['id'] }}"
                                                         data-sim-title="{{ $a['sim'][0] }}" data-sim-text="{{ $a['sim'][1] }}" data-sim-message="{{ $a['sim'][2] }}">{{ $a['label'] }}</button>
+                                            @elseif (isset($a['form']))
+                                                <form method="POST" action="{{ $a['form']['action'] }}" class="d-inline" @if (! empty($a['form']['confirm'])) onsubmit="return confirm(@js($a['form']['confirm']))" @endif>
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-{{ $a['variant'] ?? 'soft' }}">{{ $a['label'] }}</button>
+                                                </form>
                                             @elseif (isset($a['href']))
                                                 <a href="{{ $a['href'] }}" class="btn btn-sm btn-{{ $a['variant'] ?? 'soft' }}">{{ $a['label'] }}</a>
                                             @endif

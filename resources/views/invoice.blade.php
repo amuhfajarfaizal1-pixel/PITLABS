@@ -77,5 +77,5 @@
     </div>
 </article>
 
-<div class="text-center mt-4 no-print"><a href="{{ \App\Support\DemoAuth::isAdmin() ? route('admin.orders.new') : route('dashboard.history') }}" class="btn btn-soft">Kembali</a></div>
+<div class="text-center mt-4 no-print"><a href="{{ auth()->user()->isAdmin() ? route('admin.orders.new') : route('dashboard.history') }}" class="btn btn-soft">Kembali</a></div>
 @endsection

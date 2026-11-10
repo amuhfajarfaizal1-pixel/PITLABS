@@ -7,14 +7,14 @@ Status diperbarui setiap fase. ✅ selesai · 🟡 sebagian/simulasi · ⬜ belu
 
 | # | Kriteria | Poin | Status | Rencana / catatan |
 |---|---|---|---|---|
-| 1 | Halaman login dan register | 5 | 🟡 | UI, validasi klien + server, CSRF, throttle sudah ada (Fase 4A). Penyimpanan akun, hash kata sandi, dan Laravel Auth di Fase 5 |
+| 1 | Halaman login dan register | 5 | 🟡 | Sungguhan sejak 5A: database, hash kata sandi, validasi klien + server, CSRF, throttle, tes. Menunggu dijalankan dan diuji pemilik |
 | 1b | Login pihak ketiga (Google) | 10 (menggantikan 5) | 🟡 | Tombol "Masuk/Daftar dengan Google" + alur simulasi sudah ada. Fase 5: Laravel Socialite + OAuth 2.0 (lihat bagian C) |
 | 2 | Halaman depan | 5 | ✅ | Homepage Fase 3 |
 | 3 | Dashboard | 5 | 🟡 | Dashboard pelanggan dan admin sudah ada (data contoh, Fase 4); data nyata di Fase 5 |
 | 4 | Fitur utama (CRUD, saling terintegrasi) | 20 | ⬜ | Lihat bagian B |
 | 5 | Fitur keamanan (enkripsi, autentikasi, dll.) | 5 | 🟡 | Lihat bagian D |
 | 6 | SEO friendly | 5 | 🟡 | Lihat bagian E |
-| 7 | Logout | 5 | 🟡 | Tombol "Keluar" di navbar (POST + CSRF + invalidasi session) sudah ada, masih simulasi. Fase 5: Auth::logout() |
+| 7 | Logout | 5 | 🟡 | `Auth::logout()` + invalidasi session + regenerasi token (5A); menunggu diuji |
 
 ## B. Fitur utama (minimal 4–6 fitur inti yang terintegrasi, aturan PjBL no. 3)
 1. Katalog dan detail produk (hasil: Fase 4A, UI) — CRUD produk oleh admin di Fase 5.
@@ -42,11 +42,12 @@ Yang disiapkan di Fase 5:
 | Proteksi CSRF pada form POST | ✅ `@csrf` |
 | Escape output (XSS) | ✅ Blade `{{ }}` |
 | Batas percobaan login (anti brute force) | ✅ `throttle:6,1` |
-| Cegah open redirect pada tautan "kembali" | ✅ `DemoAuth::safePath` |
-| Regenerate session saat login/logout | ✅ (simulasi) |
-| Hash kata sandi | ⬜ Fase 5 (Hash::make / bcrypt) |
-| Otorisasi admin di server (middleware/policy) | ⬜ Fase 5 |
-| Query aman (Eloquent/prepared statement) | ⬜ Fase 5 |
+| Cegah open redirect pada tautan "kembali" | ✅ `Pit::safePath` + tes |
+| Regenerate session saat login/logout | ✅ |
+| Mass-assignment `role`/`is_active` dicegah | ✅ + tes |
+| Hash kata sandi | ✅ cast `hashed` (5A) |
+| Otorisasi admin di server (middleware) | ✅ `EnsureRole` + tes (5A) |
+| Query aman (Eloquent/prepared statement) | 🟡 dipakai pada auth/pelanggan; sisanya mengikuti batch berikutnya |
 | HTTPS, header keamanan, `.env` tidak ter-commit | ⬜ Fase 6–7 |
 | Verifikasi signature webhook pembayaran | ⬜ Fase 5 |
 

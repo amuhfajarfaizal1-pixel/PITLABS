@@ -1,5 +1,14 @@
 # Development Log — PITLABS
 
+## 2026-11-10 — Fase 5A: database dan autentikasi
+- Disetujui pemilik: backend dimulai dari database + autentikasi; PHP pemilik dilaporkan 8.5.x (perlu dikonfirmasi `php -v`); database `pitlabs` di MySQL XAMPP; payment gateway ditunda.
+- Added: migration (extend `users`, `categories`, `products`, `inventory_units`), model `User`/`Category`/`Product`/`InventoryUnit`, seeder (kategori, 7 produk, 15 unit contoh, akun admin dan pelanggan contoh), `EnsureRole`, `tests/Feature/AuthTest.php` (11 tes).
+- Changed: `AuthController` (login/registrasi sungguhan, throttle per email+IP, pesan login generik, regenerasi session), `routes/web.php` (`auth` + `EnsureRole`, rute profil dan kata sandi, aktif/nonaktif pelanggan), `CustomerController` (profil dan kata sandi nyata), `AdminController` (daftar pelanggan dari DB), komponen `dash.table` (aksi form POST), views auth/navbar/layout dashboard/invoice/availability (`auth()`), halaman login/register tanpa banner demo, modal Google menjadi informasi.
+- Removed: `DemoAuth`, `DemoRole`, login demo dan tombol akses cepat.
+- Belum diuji: seluruhnya belum dijalankan (sandbox tanpa PHP/MySQL). Cek statis: sintaks JS, pasangan direktif Blade, nama route. Mohon jalankan `php artisan migrate --seed` dan `php artisan test`, lalu laporkan hasilnya.
+- Masih `Mock*`: katalog, ketersediaan, pesanan, antrean, laporan. Login Google: 5B.
+- Berikutnya (usulan, menunggu persetujuan): 5B katalog dari database + CRUD produk/unit admin.
+
 ## 2026-11-10 — Fase 4B: dashboard admin dan pelanggan, checkout, invoice, halaman informasi
 - Added: kerangka dashboard bersama (`layouts/dashboard`, sidebar offcanvas, topbar, notifikasi) dengan dua tema: user (brand Sapphire/Navy, tidak diubah) dan admin (Bright Yellow × Charcoal/Navy × netral) — beda hanya di variabel `--dash-*` (`public/assets/css/dashboard.css`).
 - Added (admin, 12 halaman): dashboard, New Orders, Ongoing Rentals, verifikasi pembayaran, QR Scanner, verifikasi pengambilan, pengembalian, pemeriksaan kondisi, pengelolaan denda, produk, inventaris, laporan keuangan.

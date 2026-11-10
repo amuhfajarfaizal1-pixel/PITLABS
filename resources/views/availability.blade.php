@@ -109,7 +109,7 @@
 
                         @if (! $isDigital && $r['free_count'] === 0)
                             <x-alert type="info" title="Semua unit penuh pada periode ini" class="mb-3">Anda bisa masuk antrean. Kami memberi tahu saat ada unit yang bebas. Antrean bukan jaminan unit.</x-alert>
-                            @if (\App\Support\DemoAuth::check())
+                            @if (auth()->check())
                                 <form method="POST" action="{{ route('waitlist.store') }}">
                                     @csrf
                                     @foreach (['produk', 'mulai', 'durasi', 'satuan'] as $f)<input type="hidden" name="{{ $f }}" value="{{ request($f) }}">@endforeach
@@ -121,7 +121,7 @@
                         @endif
 
                         @if ($isDigital || $r['free_count'] > 0)
-                            @if (\App\Support\DemoAuth::check())
+                            @if (auth()->check())
                                 @if ($checkoutUrl)
                                     <a href="{{ $checkoutUrl }}?{{ http_build_query(request()->only(['produk', 'mulai', 'durasi', 'satuan'])) }}" class="btn btn-primary">Lanjutkan ke pemesanan</a>
                                 @else

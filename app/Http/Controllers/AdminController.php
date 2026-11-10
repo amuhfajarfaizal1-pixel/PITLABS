@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Support\MockCatalog;
 use App\Support\MockData;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 /**
@@ -145,21 +147,33 @@ class AdminController extends Controller
         ]);
     }
 
+    /** Daftar pelanggan dari DATABASE (Fase 5A). */
     public function customers(): View
     {
-        $rows = array_map(function ($c) {
-            $on = $c['account'] === 'ACTIVE';
-            $c['_sim'] = ['account' => $on ? 'INACTIVE' : 'ACTIVE'];
-            $c['_actions'] = [['label' => $on ? 'Nonaktifkan' : 'Aktifkan', 'variant' => 'soft', 'sim' => [
-                ($on ? 'Nonaktifkan' : 'Aktifkan').' akun',
-                $c['stack'][0].': akun akan '.($on ? 'tidak dapat membuat pesanan baru.' : 'dapat digunakan kembali.'),
-                'Akun '.$c['stack'][0].($on ? ' dinonaktifkan' : ' diaktifkan'),
-            ]]];
+        $rows = User::where('role', User::ROLE_CUSTOMER)->latest()->get()->map(function (User $u) {
+            $on = $u->is_active;
 
-            return $c;
-        }, MockData::customers());
+            return [
+                'id'      => $u->id,
+                'stack'   => [$u->name, $u->email],
+                'phone'   => $u->phone ?: 'Belum diisi',
+                'joined'  => $u->created_at->timezone('Asia/Makassar')->locale('id')->translatedFormat('j M Y'),
+                'account' => $on ? 'ACTIVE' : 'INACTIVE',
+                '_actions' => [['label' => $on ? 'Nonaktifkan' : 'Aktifkan', 'variant' => 'soft',
+                    'form' => ['action' => route('admin.customers.toggle', $u), 'confirm' => ($on ? 'Nonaktifkan' : 'Aktifkan').' akun '.$u->name.'?']]],
+            ];
+        })->all();
 
         return view('admin.customers', ['rows' => $rows]);
+    }
+
+    public function toggleCustomer(User $user): RedirectResponse
+    {
+        abort_unless($user->role === User::ROLE_CUSTOMER, 404);
+
+        $user->forceFill(['is_active' => ! $user->is_active])->save();
+
+        return back()->with('status', 'Akun '.$user->name.($user->is_active ? ' diaktifkan.' : ' dinonaktifkan.'));
     }
 
     public function waitlist(): View

@@ -29,6 +29,19 @@ class Pit
         return $page.'#ketentuan-sewa';
     }
 
+    /** Hanya path internal yang boleh jadi tujuan redirect (cegah open redirect). */
+    public static function safePath(?string $path, string $default = '/'): string
+    {
+        if (! is_string($path) || $path === '' || $path[0] !== '/') {
+            return $default;
+        }
+        if (str_starts_with($path, '//') || str_contains($path, '\\') || preg_match('/[\x00-\x1F]/', $path)) {
+            return $default;
+        }
+
+        return $path;
+    }
+
     public static function rupiah(?int $n): string
     {
         return 'Rp '.number_format((int) $n, 0, ',', '.');

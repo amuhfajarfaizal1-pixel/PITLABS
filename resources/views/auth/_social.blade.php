@@ -6,16 +6,11 @@
 
 <div class="pit-divider" role="separator" aria-label="atau"><span>atau dengan email</span></div>
 
-<x-modal id="googleModal" title="Masuk dengan Google">
-    <p class="mb-2">Login Google belum tersambung ke akun Google sungguhan. Tombol ini akan memakai OAuth 2.0 (Laravel Socialite) pada Fase 5.</p>
-    <p class="mb-0 text-muted-pit">Untuk mencoba alurnya sekarang, lanjutkan sebagai akun Google demo. Tidak ada data yang dikirim ke Google.</p>
+<x-modal id="googleModal" title="Login Google segera aktif">
+    <p class="mb-2">Masuk dan daftar dengan akun Google akan diaktifkan pada tahap berikutnya, setelah kredensial OAuth Google tersedia (Laravel Socialite, OAuth 2.0).</p>
+    <p class="mb-0 text-muted-pit">Untuk sekarang, gunakan email dan kata sandi di bawah.</p>
 
     <x-slot:footer>
-        <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Batal</button>
-        <form method="POST" action="{{ route('auth.google.demo') }}">
-            @csrf
-            <input type="hidden" name="kembali" value="{{ $kembali }}">
-            <button type="submit" class="btn btn-primary">Lanjutkan sebagai akun demo</button>
-        </form>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Mengerti</button>
     </x-slot:footer>
 </x-modal>

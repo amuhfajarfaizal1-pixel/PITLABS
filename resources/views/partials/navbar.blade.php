@@ -64,8 +64,8 @@
                     @endforeach
                 </ul>
 
-                @if (\App\Support\DemoAuth::check())
-                    @php $demoUser = \App\Support\DemoAuth::user(); @endphp
+                @auth
+                    @php $demoUser = ['name' => auth()->user()->name]; @endphp
                     <div class="dropdown">
                         <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle" aria-hidden="true"></i>
@@ -73,8 +73,8 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-lg-end">
                             <li>
-                                <a class="dropdown-item" href="{{ \App\Support\DemoAuth::isAdmin() ? route('admin.dashboard') : route('dashboard') }}">
-                                    {{ \App\Support\DemoAuth::isAdmin() ? 'Dashboard admin' : 'Dashboard saya' }}
+                                <a class="dropdown-item" href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('dashboard') }}">
+                                    {{ auth()->user()->isAdmin() ? 'Dashboard admin' : 'Dashboard saya' }}
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
@@ -99,7 +99,7 @@
                             <span class="btn btn-primary disabled" aria-disabled="true" title="Halaman registrasi dikerjakan di fase berikutnya">Daftar</span>
                         @endif
                     </div>
-                @endif
+                @endauth
             </div>
         </div>
     </nav>

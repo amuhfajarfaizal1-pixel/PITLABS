@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\DemoAuth;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 use App\Support\MockAvailability;
 use App\Support\MockCatalog;
 use App\Support\MockData;
@@ -18,6 +20,51 @@ use Illuminate\View\View;
  */
 class CustomerController extends Controller
 {
+    /** Data pengguna untuk view (array agar view tidak bergantung pada bentuk model). */
+    private function userData(): array
+    {
+        $u = Auth::user();
+
+        return ['name' => $u->name, 'email' => $u->email, 'phone' => $u->phone, 'provider' => $u->google_id ? 'google' : 'password'];
+    }
+
+    public function updateProfile(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $data = $request->validate([
+            'name'  => ['required', 'string', 'min:3', 'max:120'],
+            'email' => ['required', 'email:rfc', 'max:190', 'unique:users,email,'.$user->id],
+            'phone' => ['nullable', 'regex:/^(\+62|62|0)8[0-9]{8,12}$/'],
+        ], [
+            'name.required' => 'Isi nama lengkap Anda.',
+            'name.min'      => 'Nama minimal 3 karakter.',
+            'email.unique'  => 'Email ini sudah dipakai akun lain.',
+            'phone.regex'   => 'Nomor WhatsApp tidak valid. Contoh: 081234567890',
+        ]);
+
+        $user->update($data);
+
+        return back()->with('status', 'Profil diperbarui.');
+    }
+
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'current_password'          => ['required', 'current_password'],
+            'new_password'              => ['required', 'string', 'min:10', 'max:255', 'confirmed', 'different:current_password'],
+        ], [
+            'current_password.required'         => 'Isi kata sandi saat ini.',
+            'current_password.current_password' => 'Kata sandi saat ini salah.',
+            'new_password.min'                  => 'Kata sandi baru minimal 10 karakter.',
+            'new_password.confirmed'            => 'Konfirmasi kata sandi tidak sama.',
+            'new_password.different'            => 'Kata sandi baru harus berbeda dari yang lama.',
+        ]);
+
+        $request->user()->update(['password' => $data['new_password']]);
+
+        return back()->with('status', 'Kata sandi diubah.');
+    }
+
     private function orders(): array
     {
         return array_map(function (array $o) {
@@ -36,7 +83,7 @@ class CustomerController extends Controller
         $orders = $this->orders();
 
         return view('dashboard.index', [
-            'user'      => DemoAuth::user(),
+            'user'      => $this->userData(),
             'active'    => array_values(array_filter($orders, fn ($o) => in_array($o['rental'], ['RENTING', 'DUE_SOON', 'OVERDUE'], true))),
             'upcoming'  => array_values(array_filter($orders, fn ($o) => $o['rental'] === 'NOT_STARTED' && $o['order'] !== 'CANCELLED')),
             'history'   => $orders,
@@ -109,7 +156,7 @@ class CustomerController extends Controller
 
     public function profile(): View
     {
-        return view('dashboard.profile', ['user' => DemoAuth::user()]);
+        return view('dashboard.profile', ['user' => $this->userData()]);
     }
 
     /* ---------- Checkout (simulasi) ---------- */
@@ -181,7 +228,7 @@ class CustomerController extends Controller
         session(['pit_demo_order' => [
             'id'       => 0,
             'invoice'  => 'INV-DEMO-'.now(MockAvailability::TZ)->format('ymd-His'),
-            'customer' => DemoAuth::user()['name'] ?? 'Pelanggan Demo',
+            'customer' => Auth::user()->name,
             'product'  => $product['name'],
             'unit'     => $data['unit'],
             'period'   => $fmt($start).' – '.$fmt($end),

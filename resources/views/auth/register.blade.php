@@ -15,9 +15,6 @@
             <h1 class="h2 mb-1">Buat akun PITLABS</h1>
             <p class="text-muted-pit mb-4">Sudah punya akun? <a class="pit-link" href="{{ route('login', ['kembali' => $kembali]) }}">Masuk</a></p>
 
-            @if (config('pitlabs.demo_mode'))
-                <x-alert type="info" class="mb-4">Mode demo: akun belum disimpan ke database. Data baru tersimpan setelah backend dibuat.</x-alert>
-            @endif
 
             @include('auth._social', ['label' => 'Daftar dengan Google', 'kembali' => $kembali])
 

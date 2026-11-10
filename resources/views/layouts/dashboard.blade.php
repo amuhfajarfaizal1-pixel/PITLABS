@@ -17,8 +17,8 @@
     @stack('head')
 </head>
 @php
-    $theme = (request()->is('admin*') || (request()->is('invoice*') && \App\Support\DemoAuth::isAdmin())) ? 'admin' : 'user';
-    $authUser = \App\Support\DemoAuth::user();
+    $theme = (request()->is('admin*') || (request()->is('invoice*') && auth()->user()->isAdmin())) ? 'admin' : 'user';
+    $authUser = ['name' => auth()->user()->name];
 @endphp
 <body class="pit-dash pit-theme-{{ $theme }}">
 
