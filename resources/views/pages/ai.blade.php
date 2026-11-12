@@ -19,7 +19,7 @@
             <div class="col-lg-7">
                 <div class="pit-card" aria-label="Pratinjau asisten AI (belum aktif)">
                     <div class="d-flex align-items-center gap-3 mb-4">
-                        <span class="pit-hero-card__tile" aria-hidden="true"><i class="bi bi-stars"></i></span>
+                        <span class="pit-tile" aria-hidden="true"><i class="bi bi-stars"></i></span>
                         <div><strong class="d-block">AI Technical Assistant</strong><small class="text-muted-pit">Rekomendasi perangkat AI dan IoT</small></div>
                     </div>
                     <x-alert type="info" class="mb-3">Pratinjau tampilan. Kolom di bawah belum dapat dipakai.</x-alert>

@@ -35,26 +35,32 @@
   color: var(--dash-text);
 }
 
-/* Tema admin: kuning = identitas, charcoal = karakter, putih/abu = ruang */
+/* Tema admin: Navy × Yellow.
+   Primary Navy #0B1F3A · Dark Navy #07172B · Accent Yellow #FACC15 · Blue #2563EB · Light #F4F6FA */
 .pit-theme-admin {
-  --dash-accent: #FFCE1F;
-  --dash-accent-hover: #F2BF00;
-  --dash-accent-on: #0A2540;
-  --dash-accent-soft: #FFF4C2;
-  --dash-accent-ink: #5E4400;
+  --dash-bg: #F4F6FA;
+  --dash-border: #E1E6EF;
 
-  --dash-side-bg: #0F1826;
-  --dash-side-border: #1C2738;
-  --dash-side-text: #B7C3D3;
-  --dash-side-heading: #8A9BB0;
-  --dash-side-hover: #172234;
-  --dash-side-active-bg: #FFCE1F;
-  --dash-side-active-text: #0A2540;
+  --dash-accent: #FACC15;
+  --dash-accent-hover: #EAB308;
+  --dash-accent-on: #0B1F3A;
+  --dash-accent-soft: #FEF9C3;
+  --dash-accent-ink: #854D0E;
+
+  --dash-side-bg: #07172B;
+  --dash-side-border: #12294A;
+  --dash-side-text: #B4C2D8;
+  --dash-side-heading: #8FA3C0;
+  --dash-side-hover: #0F2747;
+  --dash-side-active-bg: #FACC15;
+  --dash-side-active-text: #07172B;
   --dash-brand-bg: #FFFFFF;
-  --dash-focus: #0A2540;
+  --dash-focus: #0B1F3A;
 
-  --bs-link-color: #5E4400;
-  --bs-link-hover-color: #0A2540;
+  --adm-navy: #0B1F3A;
+  --adm-blue: #2563EB;
+  --bs-link-color: #2563EB;
+  --bs-link-hover-color: #1D4ED8;
 }
 
 /* Tombol & form mengikuti aksen tema */
@@ -73,9 +79,9 @@
 .pit-dash .btn-outline-danger { --bs-btn-color: #A4231A; --bs-btn-border-color: #A4231A; --bs-btn-hover-bg: #FDE8E6; --bs-btn-hover-color: #A4231A; --bs-btn-hover-border-color: #A4231A; --bs-btn-active-bg: #FBD5D1; --bs-btn-active-color: #A4231A; }
 .pit-dash :focus-visible { outline: 3px solid var(--dash-focus); outline-offset: 2px; }
 .pit-dash .btn:focus-visible { box-shadow: none; outline: 3px solid var(--dash-focus); outline-offset: 2px; }
-.pit-theme-admin .form-control:focus, .pit-theme-admin .form-select:focus { border-color: #0A2540; box-shadow: 0 0 0 3px rgba(255, 206, 31, .55); }
-.pit-theme-admin .form-check-input:checked { background-color: #0A2540; border-color: #0A2540; }
-.pit-theme-admin .form-check-input:focus { box-shadow: 0 0 0 3px rgba(255, 206, 31, .55); border-color: #0A2540; }
+.pit-theme-admin .form-control:focus, .pit-theme-admin .form-select:focus { border-color: #0B1F3A; box-shadow: 0 0 0 3px rgba(250, 204, 21, .55); }
+.pit-theme-admin .form-check-input:checked { background-color: #0B1F3A; border-color: #0B1F3A; }
+.pit-theme-admin .form-check-input:focus { box-shadow: 0 0 0 3px rgba(250, 204, 21, .55); border-color: #0B1F3A; }
 .pit-dash .pit-link { color: var(--dash-accent-ink); }
 
 /* ---- Kerangka ------------------------------------------------------------ */
@@ -103,7 +109,7 @@
 .pit-theme-admin .dash-nav__link:hover { color: #fff; }
 .dash-nav__link.is-active, .dash-nav__link.is-active:hover { background: var(--dash-side-active-bg); color: var(--dash-side-active-text); }
 .dash-nav__count { margin-left: auto; min-width: 1.5rem; padding: .05rem .45rem; border-radius: var(--pit-radius-pill); background: var(--dash-accent); color: var(--dash-accent-on); font-size: .75rem; font-weight: 700; text-align: center; }
-.dash-nav__link.is-active .dash-nav__count { background: #0A2540; color: #FFCE1F; }
+.dash-nav__link.is-active .dash-nav__count { background: #07172B; color: #FACC15; }
 .pit-theme-user .dash-nav__link.is-active .dash-nav__count { background: var(--pit-sapphire); color: #fff; }
 .dash-sidebar__foot { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--dash-side-border); }
 
@@ -208,7 +214,7 @@
 /* ---- Scanner & checklist ------------------------------------------------- */
 .dash-scan { position: relative; aspect-ratio: 4 / 3; max-width: 28rem; background: #0F1826; border-radius: var(--pit-radius-xl); display: grid; place-items: center; color: #8A9BB0; overflow: hidden; }
 .dash-scan__frame { width: 58%; aspect-ratio: 1; border-radius: var(--pit-radius-lg); position: relative; box-shadow: 0 0 0 999px rgba(0, 0, 0, .35); }
-.dash-scan__frame::before, .dash-scan__frame::after { content: ""; position: absolute; width: 28px; height: 28px; border: 4px solid #FFCE1F; }
+.dash-scan__frame::before, .dash-scan__frame::after { content: ""; position: absolute; width: 28px; height: 28px; border: 4px solid #FACC15; }
 .dash-scan__frame::before { top: -2px; left: -2px; border-right: 0; border-bottom: 0; border-top-left-radius: 12px; }
 .dash-scan__frame::after { bottom: -2px; right: -2px; border-left: 0; border-top: 0; border-bottom-right-radius: 12px; }
 .dash-scan__text { position: absolute; bottom: 1rem; left: 0; right: 0; text-align: center; font-size: .875rem; padding-inline: 1rem; }
@@ -237,3 +243,47 @@
 .dash-statusgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: .75rem; }
 .dash-statusgrid > div { padding: .875rem; border: 1px solid var(--dash-border); border-radius: var(--pit-radius-md); background: #FAFBFD; }
 .dash-statusgrid small { display: block; color: var(--dash-muted); font-weight: 600; margin-bottom: .375rem; }
+
+/* ==========================================================================
+   Penyempurnaan tema ADMIN (Navy × Yellow) — hanya berlaku di .pit-theme-admin
+   ========================================================================== */
+.pit-theme-admin .dash-topbar { background: #FFFFFF; border-bottom-color: var(--dash-border); }
+.pit-theme-admin .dash-topbar__role { background: #0B1F3A; color: #FACC15; }
+.pit-theme-admin .dash-topbar__page, .pit-theme-admin .dash-header__title, .pit-theme-admin .dash-panel__title { color: #0B1F3A; }
+.pit-theme-admin .dash-avatar { background: #0B1F3A; color: #FACC15; }
+.pit-theme-admin .dash-iconbtn, .pit-theme-admin .dash-userbtn, .pit-theme-admin .dash-topbar__menu { border-color: var(--dash-border); color: #0B1F3A; }
+.pit-theme-admin .dash-iconbtn:hover, .pit-theme-admin .dash-userbtn:hover { background: #F4F6FA; border-color: #C9D3E3; }
+.pit-theme-admin .dash-sidebar__body { scrollbar-width: thin; scrollbar-color: #1B3557 transparent; }
+.pit-theme-admin .dash-sidebar .offcanvas-header { background: #07172B; }
+
+/* Kartu statistik: navy, biru, dan kuning bergantian secara proporsional (kartu semantik tetap hijau/kuning-peringatan/merah) */
+.pit-theme-admin .dash-stat { border-color: var(--dash-border); }
+.pit-theme-admin .dash-stat--link:hover { border-color: #2563EB; }
+.pit-theme-admin .dash-stat:not(.dash-stat--success):not(.dash-stat--warning):not(.dash-stat--danger):nth-child(3n+1) .dash-stat__icon { background: #0B1F3A; color: #FACC15; }
+.pit-theme-admin .dash-stat:not(.dash-stat--success):not(.dash-stat--warning):not(.dash-stat--danger):nth-child(3n+2) .dash-stat__icon { background: #DBEAFE; color: #1D4ED8; }
+.pit-theme-admin .dash-stat:not(.dash-stat--success):not(.dash-stat--warning):not(.dash-stat--danger):nth-child(3n) .dash-stat__icon { background: #FEF9C3; color: #854D0E; }
+.pit-theme-admin .dash-stat__value { color: #0B1F3A; }
+
+/* Panel, tabel, daftar */
+.pit-theme-admin .dash-panel { border-color: var(--dash-border); }
+.pit-theme-admin .dash-table__table thead th { background: #EEF2F8; color: #0B1F3A; border-color: var(--dash-border); }
+.pit-theme-admin .dash-table__table tbody td { border-color: #EDF0F6; }
+.pit-theme-admin .dash-table__table tbody tr:hover { background: #F8FAFD; }
+.pit-theme-admin .dash-list__item { border-color: #EDF0F6; }
+.pit-theme-admin .dash-statusgrid > div { background: #F8FAFD; border-color: var(--dash-border); }
+.pit-theme-admin .dash-search .form-control { background: #F4F6FA; border-color: transparent; }
+.pit-theme-admin .dash-search .form-control:focus { background: #FFFFFF; }
+
+/* Tombol */
+.pit-theme-admin .btn-soft { --bs-btn-color: #0B1F3A; --bs-btn-bg: #E8EDF6; --bs-btn-border-color: #E8EDF6; --bs-btn-hover-color: #0B1F3A; --bs-btn-hover-bg: #DCE4F1; --bs-btn-hover-border-color: #DCE4F1; --bs-btn-active-bg: #CFD9EA; --bs-btn-active-border-color: #CFD9EA; --bs-btn-active-color: #0B1F3A; }
+.pit-theme-admin .btn-outline-primary { --bs-btn-color: #0B1F3A; --bs-btn-border-color: #0B1F3A; --bs-btn-hover-bg: #0B1F3A; --bs-btn-hover-color: #FFFFFF; --bs-btn-hover-border-color: #0B1F3A; --bs-btn-active-bg: #07172B; --bs-btn-active-color: #FFFFFF; --bs-btn-active-border-color: #07172B; }
+.pit-theme-admin .btn-navy { --bs-btn-bg: #0B1F3A; --bs-btn-border-color: #0B1F3A; --bs-btn-hover-bg: #07172B; --bs-btn-hover-border-color: #07172B; }
+.pit-theme-admin .dropdown-item:hover, .pit-theme-admin .dropdown-item:focus { background: #EEF2F8; color: #0B1F3A; }
+.pit-theme-admin .dropdown-item:active { background: #0B1F3A; color: #FFFFFF; }
+
+/* Grafik, notifikasi, toast */
+.pit-theme-admin .dash-chart__bar { fill: #C7D6F0; }
+.pit-theme-admin .dash-chart__bar.is-current { fill: #FACC15; }
+.pit-theme-admin .dash-toast { background: #0B1F3A; }
+.pit-theme-admin .dash-toast .bi-check-circle-fill { color: #FACC15; }
+.pit-theme-admin .dash-progress > span { background: #2563EB; }

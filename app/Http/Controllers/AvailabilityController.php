@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\MockAvailability;
-use App\Support\MockCatalog;
+use App\Support\Catalog;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -13,7 +13,7 @@ class AvailabilityController extends Controller
 {
     public function show(Request $request): View
     {
-        $products = MockCatalog::all();
+        $products = Catalog::all();
         $slugs = array_column($products, 'slug');
         $today = MockAvailability::today();
 
@@ -60,7 +60,7 @@ class AvailabilityController extends Controller
 
     private function compute(Request $request, CarbonImmutable $today): array
     {
-        $product = MockCatalog::find($request->query('produk'));
+        $product = Catalog::find($request->query('produk'));
         $start = CarbonImmutable::createFromFormat('Y-m-d', $request->query('mulai'), MockAvailability::TZ)->startOfDay();
         $n = (int) $request->query('durasi');
 

@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Product;
 use Carbon\CarbonImmutable;
 
 /**
@@ -14,54 +15,51 @@ class MockAvailability
 {
     public const TZ = 'Asia/Makassar';
 
-    /** Awalan kode unit contoh per produk fisik. */
-    private const PREFIX = [
-        'laptop'            => 'LPT',
-        'raspberry-pi-5'    => 'RPI',
-        'jetson-orin-nano'  => 'JON',
-        'drone'             => 'DRN',
-        'kamera-mirrorless' => 'KMR',
-    ];
-
     public static function today(): CarbonImmutable
     {
         return CarbonImmutable::now(self::TZ)->startOfDay();
     }
 
-    /** Jadwal booking contoh per unit: [mulai, akhir) relatif terhadap hari ini. */
-    private static function bookings(string $slug): array
+    /** Kode unit AKTIF produk fisik dari database; null jika produk tidak ada atau digital. */
+    private static function codes(string $slug): ?array
+    {
+        $product = Product::where('slug', $slug)->first();
+        if (! $product || $product->isDigital()) {
+            return null;
+        }
+
+        return $product->units()->where('operational_status', 'ACTIVE')->orderBy('unit_code')->pluck('unit_code')->all();
+    }
+
+    /** Jadwal booking CONTOH untuk unit ke-$i (0-based). Fase 5C: ganti dengan tabel booking. */
+    private static function schedule(string $slug, int $i): array
     {
         $t = self::today();
 
-        // Drone sengaja penuh agar state "tidak tersedia" bisa dicoba.
-        if ($slug === 'drone') {
-            return [
-                '001' => [[$t->subDay(), $t->addDays(10)]],
-                '002' => [[$t->subDays(2), $t->addDays(8)]],
-                '003' => [[$t->subDay(), $t->addDays(12)]],
-            ];
+        if ($slug === 'drone') { // sengaja penuh agar state "tidak tersedia" bisa dicoba
+            return [[$t->subDays(2 - ($i % 2)), $t->addDays(8 + $i)]];
         }
 
-        return [
-            '001' => [[$t->addDays(2), $t->addDays(5)]],
-            '002' => [[$t->subDay(), $t->addDay()]],
-            '003' => [],
-        ];
+        return match ($i) {
+            0 => [[$t->addDays(2), $t->addDays(5)]],
+            1 => [[$t->subDay(), $t->addDay()]],
+            default => [],
+        };
     }
 
     /** Daftar unit + status hari ini. null jika produk bukan perangkat fisik. */
     public static function unitsFor(string $slug): ?array
     {
-        if (! isset(self::PREFIX[$slug])) {
+        $codes = self::codes($slug);
+        if ($codes === null) {
             return null;
         }
 
         $today = self::today();
         $units = [];
-
-        foreach (self::bookings($slug) as $no => $periods) {
+        foreach ($codes as $i => $code) {
             $status = 'AVAILABLE';
-            foreach ($periods as [$s, $e]) {
+            foreach (self::schedule($slug, $i) as [$s, $e]) {
                 if ($s <= $today && $e > $today) {
                     $status = 'RENTED';
                     break;
@@ -70,7 +68,7 @@ class MockAvailability
                     $status = 'RESERVED';
                 }
             }
-            $units[] = ['code' => self::PREFIX[$slug].'-'.$no, 'status' => $status];
+            $units[] = ['code' => $code, 'status' => $status];
         }
 
         return $units;
@@ -86,24 +84,21 @@ class MockAvailability
     /** Cek bentrok untuk periode [$start, $end). */
     public static function check(string $slug, CarbonImmutable $start, CarbonImmutable $end): ?array
     {
-        if (! isset(self::PREFIX[$slug])) {
+        $codes = self::codes($slug);
+        if ($codes === null) {
             return null;
         }
 
         $result = [];
-        foreach (self::bookings($slug) as $no => $periods) {
+        foreach ($codes as $i => $code) {
             $conflict = null;
-            foreach ($periods as [$s, $e]) {
+            foreach (self::schedule($slug, $i) as [$s, $e]) {
                 if ($start < $e && $end > $s) {
                     $conflict = [$s, $e];
                     break;
                 }
             }
-            $result[] = [
-                'code'     => self::PREFIX[$slug].'-'.$no,
-                'free'     => $conflict === null,
-                'conflict' => $conflict,
-            ];
+            $result[] = ['code' => $code, 'free' => $conflict === null, 'conflict' => $conflict];
         }
 
         return $result;

@@ -1,0 +1,20 @@
+# Samakan akhir baris agar tidak muncul peringatan LF/CRLF dan diff palsu di Windows.
+* text=auto eol=lf
+
+*.blade.php diff=html
+*.css diff=css
+*.md diff=markdown
+*.php diff=php
+
+# Berkas biner
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff2 binary
+*.zip binary
+
+/.github export-ignore
+CHANGELOG.md export-ignore

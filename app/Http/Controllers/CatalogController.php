@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\MockAvailability;
-use App\Support\MockCatalog;
+use App\Support\Catalog;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -16,8 +16,8 @@ class CatalogController extends Controller
         $tersedia = $request->boolean('tersedia');
 
         return view('catalog.index', [
-            'products' => MockCatalog::search($q, $jenis, $tersedia),
-            'total'    => count(MockCatalog::all()),
+            'products' => Catalog::search($q, $jenis, $tersedia),
+            'total'    => count(Catalog::all()),
             'q'        => $q,
             'jenis'    => $jenis,
             'tersedia' => $tersedia,
@@ -26,10 +26,10 @@ class CatalogController extends Controller
 
     public function show(string $slug): View
     {
-        $product = MockCatalog::find($slug) ?? abort(404);
+        $product = Catalog::find($slug) ?? abort(404);
 
         $related = array_slice(array_values(array_filter(
-            MockCatalog::all(),
+            Catalog::all(),
             fn ($p) => $p['slug'] !== $slug
         )), 0, 3);
 

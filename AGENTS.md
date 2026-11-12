@@ -19,7 +19,7 @@ PITLABS: platform web penyewaan perangkat AI/IoT (sewa internal + beli via Shope
 ## C. Konsistensi desain
 Jangan mengganti palet, identitas visual, atau struktur layout; jangan membuat varian dashboard baru; jangan membuat komponen yang menduplikasi komponen yang ada. Gunakan token di `public/assets/css/pitlabs.css` dan variabel `--dash-*` di `dashboard.css`.
 - Oranye **hanya** tombol Beli via Shopee.
-- Tema admin (kuning) tidak boleh memengaruhi dashboard pelanggan; ubah hanya blok `.pit-theme-admin`.
+- Tema admin (Navy × Yellow: #0B1F3A, #07172B, #FACC15, #2563EB, #F4F6FA) tidak boleh memengaruhi dashboard pelanggan; ubah hanya blok `.pit-theme-admin`.
 - Teks di atas kuning memakai navy; cek kontras (≥ 4.5:1) untuk warna baru.
 - Status order, pembayaran, pengambilan, penyewaan selalu terpisah dan memakai `<x-status-badge>`.
 
@@ -35,7 +35,7 @@ Pemilik telah mengizinkan backend **bertahap**, hanya untuk batch yang disetujui
 - Kerjakan satu batch per persetujuan; jangan melompat ke batch berikutnya.
 - Setiap batch menggantikan **satu** kelas `Mock*` tanpa mengubah tampilan; hapus kelas simulasi hanya setelah tidak ada yang memakainya (`grep`).
 - `role`, `is_active`, `google_id` tidak mass-assignable; jangan diubah. Otorisasi di server (`auth` + `EnsureRole`), bukan hanya menyembunyikan menu.
-- Kata sandi/rahasia tidak boleh ditulis di kode atau commit (`.env` tidak di-commit). Tambahkan tes untuk perilaku baru.
+- Kata sandi/rahasia tidak boleh ditulis di kode atau commit (`.env` tidak di-commit); repository GitHub bersifat publik. Akun admin dibuat manual lewat `php artisan pitlabs:create-admin`; jangan menambahkan pembuatan akun otomatis ke seeder bawaan. Tambahkan tes untuk perilaku baru. Kelas tes yang menyentuh database wajib memakai `RefreshDatabase`; fixture dengan email sama dalam satu tes tidak boleh dibuat dua kali (kolom `users.email` unik dan tidak boleh dilonggarkan).
 - Perubahan skema lewat migration baru; jangan mengedit migration yang sudah dijalankan.
 - Data yang masih `Mock*`: katalog, ketersediaan, pesanan, pelanggan-antrean, laporan.
 

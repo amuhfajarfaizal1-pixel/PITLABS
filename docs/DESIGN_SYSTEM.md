@@ -76,16 +76,34 @@ Urutan: hero → produk (filter jenis) → cara sewa → ketentuan sewa dan dend
 Halaman fungsional apa pun (Fase 3+), tabel data admin, sidebar admin, kartu produk final, kalender ketersediaan.
 
 
-## 10. Dashboard (Fase 4)
+## 10. Dashboard (Fase 4, diperbarui Fase 5)
 Satu kerangka (`layouts/dashboard`, `public/assets/css/dashboard.css`), dua tema lewat variabel `--dash-*`.
 
-| Peran warna | Pelanggan (`.pit-theme-user`) | Admin (`.pit-theme-admin`) |
-|---|---|---|
-| Aksen / tombol utama | Sapphire #1463FF, teks putih | Bright Yellow #FFCE1F, teks navy #0A2540 (10,4:1) |
-| Sidebar | Putih, aktif Sapphire-soft | Charcoal #0F1826, aktif kuning + teks navy |
-| Teks tautan / aksen di latar terang | Sapphire | Kuning tua #5E4400 (9:1 di putih) |
-| Fokus | Cincin Sapphire | Outline navy 3 px (kuning terlalu rendah kontras) |
-| Latar halaman | #F3F5F8 | #F3F5F8 |
+**Palet admin (Navy × Yellow):**
 
-Aturan: kuning dipakai untuk identitas, navigasi aktif, tombol utama, dan sorotan, bukan untuk seluruh halaman. Warna semantik (hijau/merah/biru laut/kuning-peringatan) tetap sama di kedua tema; status selalu ikon + teks sehingga tidak tertukar dengan kuning identitas admin. Tanpa gradien, glow, atau glassmorphism di dashboard.
-Komponen dashboard: `x-dash.page-header`, `stat`, `panel`, `table` (cari, filter, aksi simulasi), `bars` (grafik SVG tanpa pustaka). Tabel di layar kecil menggulir horizontal.
+| Token | Hex | Peran |
+|---|---|---|
+| Primary Navy | #0B1F3A | Judul, ikon tile, tombol gelap, header tabel |
+| Dark Navy | #07172B | Latar sidebar, teks di atas kuning |
+| Accent Yellow | #FACC15 | Menu aktif, tombol utama, indikator, batang grafik bulan berjalan |
+| Blue | #2563EB | Tautan, hover kartu, progres |
+| White | #FFFFFF | Panel, topbar, kartu |
+| Light Background | #F4F6FA | Latar halaman |
+
+Kontras terukur: Dark Navy di atas Yellow 11,8:1; teks sidebar #B4C2D8 di atas Dark Navy 10:1; Blue di atas putih 5,2:1. Teks di atas kuning selalu navy, tidak pernah putih.
+
+| Peran | Pelanggan (`.pit-theme-user`) | Admin (`.pit-theme-admin`) |
+|---|---|---|
+| Aksen / tombol utama | Sapphire #1463FF, teks putih | Yellow #FACC15, teks navy |
+| Sidebar | Putih, aktif Sapphire-soft | Dark Navy, aktif Yellow + teks Dark Navy |
+| Topbar | Putih | Putih; label "Admin" navy dengan teks kuning |
+| Kartu statistik | Ikon Sapphire-soft | Ikon bergantian navy/biru/kuning-soft (kartu semantik tetap hijau, peringatan, merah) |
+| Tabel | Header abu muda | Header #EEF2F8 teks navy |
+| Fokus | Cincin Sapphire | Outline navy 3 px |
+| Latar halaman | #F3F5F8 | #F4F6FA |
+
+Aturan: kuning dipakai untuk identitas, navigasi aktif, dan tombol utama, bukan untuk seluruh halaman. Warna semantik tetap sama di kedua tema; status selalu ikon + teks. Tanpa gradien, glow, atau glassmorphism di dashboard. Perubahan tema admin hanya boleh di blok `.pit-theme-admin` agar tidak memengaruhi dashboard pelanggan.
+Komponen dashboard: `x-dash.page-header`, `stat`, `panel`, `table` (cari, filter, aksi simulasi atau form POST), `bars` (grafik SVG tanpa pustaka). Tabel di layar kecil menggulir horizontal.
+
+## 11. Hero homepage
+Satu kolom, rata tengah: eyebrow, headline, deskripsi, dua tombol, lalu tiga poin kepercayaan dalam satu baris (menumpuk di layar kecil). Gradien dan pola grid hanya dipakai di hero. Tidak ada kartu ilustrasi di hero.

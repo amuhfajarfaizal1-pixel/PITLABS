@@ -17,6 +17,13 @@ return [
     'description' => 'Sewa perangkat AI, IoT, dan teknologi untuk proyek, riset, dan pembelajaran. Ambil langsung di lokasi, pantau masa sewa dari dashboard.',
     'company'     => 'PT. Pulau Inovasi Teknologi',
 
+    // Dipakai HANYA oleh AdminSeeder manual (php artisan db:seed --class=AdminSeeder). Nilai dari .env.
+    'admin_seed'  => [
+        'name'     => env('ADMIN_NAME', 'Admin PITLABS'),
+        'email'    => env('ADMIN_EMAIL'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
+
     // true selama login/registrasi/ketersediaan masih simulasi (Fase 4). Set false di Fase 5.
     'demo_mode'   => true,
 
@@ -104,6 +111,8 @@ return [
         'availability' => 'Ketersediaan',
         'waitlist' => 'Antrean',
         'account' => 'Akun',
+        'operational' => 'Status operasional',
+        'condition' => 'Kondisi unit',
     ],
 
     'status' => [
@@ -141,6 +150,20 @@ return [
             'NOTIFIED'  => ['label' => 'Diberi tahu', 'variant' => 'info',    'icon' => 'bi-bell'],
             'FULFILLED' => ['label' => 'Terpenuhi',   'variant' => 'success', 'icon' => 'bi-check-circle-fill'],
             'CANCELLED' => ['label' => 'Dibatalkan',  'variant' => 'neutral', 'icon' => 'bi-x-circle'],
+        ],
+
+        'operational' => [
+            'ACTIVE'      => ['label' => 'Aktif',        'variant' => 'success', 'icon' => 'bi-check-circle'],
+            'MAINTENANCE' => ['label' => 'Perawatan',    'variant' => 'warning', 'icon' => 'bi-wrench'],
+            'RETIRED'     => ['label' => 'Dipensiunkan', 'variant' => 'neutral', 'icon' => 'bi-archive'],
+        ],
+
+        'condition' => [
+            'GOOD'        => ['label' => 'Baik',           'variant' => 'success', 'icon' => 'bi-check-circle'],
+            'MINOR_ISSUE' => ['label' => 'Masalah ringan', 'variant' => 'warning', 'icon' => 'bi-exclamation-circle'],
+            'MAJOR_ISSUE' => ['label' => 'Masalah berat',  'variant' => 'danger',  'icon' => 'bi-exclamation-triangle'],
+            'DAMAGED'     => ['label' => 'Rusak',          'variant' => 'danger',  'icon' => 'bi-x-octagon'],
+            'LOST'        => ['label' => 'Hilang',         'variant' => 'neutral', 'icon' => 'bi-question-circle'],
         ],
 
         'account' => [

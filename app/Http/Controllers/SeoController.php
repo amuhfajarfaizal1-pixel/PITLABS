@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\MockCatalog;
+use App\Support\Catalog;
 use Illuminate\Http\Response;
 
 class SeoController extends Controller
@@ -20,7 +20,7 @@ class SeoController extends Controller
             [route('about'), '0.5'],
             [route('articles.index'), '0.5'],
         ];
-        foreach (MockCatalog::all() as $p) {
+        foreach (Catalog::all() as $p) {
             $urls[] = [route('catalog.show', $p['slug']), '0.8'];
         }
 

@@ -64,7 +64,7 @@ Untuk produk yang tersedia untuk dibeli, halaman detail dapat mengarahkan penggu
       <h3 align="center">🌐 Public</h3>
       <ul>
         <li>Homepage dan halaman informasi.</li>
-        <li>Katalog produk dengan pencarian dan filter.</li>
+        <li>Katalog produk dari database dengan pencarian dan filter.</li>
         <li>Halaman detail produk.</li>
         <li>Pemeriksaan ketersediaan perangkat.</li>
         <li>FAQ, panduan, tentang, dan artikel.</li>
@@ -91,7 +91,8 @@ Untuk produk yang tersedia untuk dibeli, halaman detail dapat mengarahkan penggu
         <li>QR scanner dan verifikasi pengambilan.</li>
         <li>Pengembalian dan pemeriksaan kondisi perangkat.</li>
         <li>Pengelolaan akun pelanggan: lihat, aktifkan, dan nonaktifkan (data dari database).</li>
-        <li>Pengelolaan denda, produk, inventaris, dan antrean.</li>
+        <li>CRUD produk dan unit inventaris (produk dinonaktifkan, unit dipensiunkan; tidak dihapus).</li>
+        <li>Pengelolaan denda dan antrean.</li>
         <li>Tampilan laporan keuangan.</li>
       </ul>
     </td>
@@ -99,7 +100,7 @@ Untuk produk yang tersedia untuk dibeli, halaman detail dapat mengarahkan penggu
 </table>
 
 > [!IMPORTANT]
-> **Current implementation status:** PITLABS berada pada **Fase 5A**: database MySQL dan **autentikasi sungguhan** sudah diimplementasikan (registrasi, login, logout, peran *CUSTOMER*/*ADMIN*, profil, ganti kata sandi, dan pengelolaan akun pelanggan). Katalog, ketersediaan, pesanan, checkout, antrean, invoice, dan laporan **masih memakai data contoh atau simulasi**. Login Google serta pembayaran nyata belum diimplementasikan. Fitur yang tampil pada antarmuka belum dapat dianggap sebagai layanan produksi.
+> **Current implementation status:** PITLABS berada pada **Fase 5B**: database MySQL, **autentikasi sungguhan** (registrasi, login, logout, peran *CUSTOMER*/*ADMIN*, profil, ganti kata sandi, pengelolaan akun pelanggan), serta **katalog dari database dengan CRUD produk dan unit oleh admin** sudah diimplementasikan. Perhitungan ketersediaan per tanggal, pesanan, checkout, antrean, invoice, dan laporan **masih memakai data contoh atau simulasi**. Login Google serta pembayaran nyata belum diimplementasikan.
 
 ## 🧰 Tech Stack
 
@@ -134,6 +135,8 @@ Pastikan lingkungan pengembangan sudah memiliki:
 - Koneksi internet untuk memuat Bootstrap dan font dari CDN.
 
 > PHP 8.0 belum memenuhi persyaratan minimum aplikasi.
+>
+> Muncul peringatan `Module "openssl" is already loaded`? Itu berasal dari konfigurasi PHP di Windows, bukan dari proyek. Lihat [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md).
 
 ## 📦 Installation & Setup
 
@@ -185,10 +188,10 @@ DB_DATABASE=pitlabs
 DB_USERNAME=root
 DB_PASSWORD=
 
-# Opsional: akun admin awal. Jika ADMIN_PASSWORD kosong, kata sandi dibuat
-# acak dan ditampilkan satu kali di terminal saat seeding.
-ADMIN_EMAIL=admin@pitlabs.test
-ADMIN_PASSWORD=
+# Opsional, hanya jika memakai AdminSeeder (lihat langkah 6). Hapus ADMIN_PASSWORD setelah admin dibuat.
+# ADMIN_NAME="Admin PITLABS"
+# ADMIN_EMAIL=
+# ADMIN_PASSWORD=
 ```
 
 > File `.env` berisi konfigurasi lokal dan rahasia. Jangan melakukan commit file ini ke repository.
@@ -199,11 +202,36 @@ ADMIN_PASSWORD=
 php artisan migrate --seed
 ```
 
-Perintah ini membuat tabel `users`, `categories`, `products`, dan `inventory_units`, lalu mengisi 2 kategori, 7 produk resmi (tanpa harga dan spesifikasi), 15 unit contoh, serta akun admin. Pada `APP_ENV=local` dibuat pula akun pelanggan contoh `pelanggan@pitlabs.test`.
+Perintah ini membuat tabel `users`, `categories`, `products`, dan `inventory_units`, lalu mengisi 2 kategori, 7 produk resmi (tanpa harga dan spesifikasi; admin melengkapinya dari menu **Produk**), dan 15 unit contoh. **Tidak ada akun pengguna yang dibuat otomatis.**
 
-> **Catat kata sandi akun yang tampil di terminal.** Kata sandi yang dibuat acak hanya ditampilkan satu kali.
+### 6. Create the admin account (manual)
 
-### 6. Run the application
+Akun admin dibuat secara manual, tidak otomatis. Cara yang disarankan:
+
+```bash
+php artisan pitlabs:create-admin
+```
+
+Perintah ini menanyakan nama, email, dan kata sandi (minimal 10 karakter, diketik tersembunyi dan diminta dua kali). Opsi lain:
+
+```bash
+# Tanpa pertanyaan (kata sandi akan tersimpan di riwayat terminal, kurang disarankan)
+php artisan pitlabs:create-admin --name="Admin PITLABS" --email=admin@contoh.com --password="kata-sandi-anda"
+
+# Lupa kata sandi admin: atur ulang
+php artisan pitlabs:create-admin --email=admin@contoh.com --reset
+
+# Menjadikan akun pelanggan yang sudah ada sebagai admin
+php artisan pitlabs:create-admin --email=pelanggan@contoh.com --reset --promote
+```
+
+Alternatif lewat `.env`: isi `ADMIN_NAME`, `ADMIN_EMAIL`, dan `ADMIN_PASSWORD`, lalu jalankan `php artisan db:seed --class=AdminSeeder`. Setelah itu hapus `ADMIN_PASSWORD` dari `.env`.
+
+> **Jangan menulis kata sandi admin langsung di berkas PHP.** Repository ini publik di GitHub; kata sandi yang tertulis di kode akan terlihat semua orang dan tetap tersimpan di riwayat commit. Gunakan perintah di atas atau `.env` (yang tidak di-commit).
+
+Pelanggan biasa cukup mendaftar di `/daftar`.
+
+### 7. Run the application
 
 ```bash
 php artisan optimize:clear
@@ -216,7 +244,7 @@ Buka aplikasi melalui browser:
 - **Register:** [http://127.0.0.1:8000/daftar](http://127.0.0.1:8000/daftar)
 - **Design System:** [http://127.0.0.1:8000/design-system](http://127.0.0.1:8000/design-system) — hanya tersedia ketika `APP_ENV=local`.
 
-Masuk dengan akun admin hasil seeding untuk membuka `/admin`, atau daftarkan akun pelanggan baru untuk membuka `/dashboard`. Pelanggan tidak dapat membuka area admin.
+Masuk dengan akun admin yang Anda buat pada langkah 6 untuk membuka `/admin`, atau daftarkan akun pelanggan baru untuk membuka `/dashboard`. Pelanggan tidak dapat membuka area admin.
 
 ## 🧪 Testing
 
@@ -224,17 +252,42 @@ Masuk dengan akun admin hasil seeding untuk membuka `/admin`, atau daftarkan aku
 php artisan test
 ```
 
-Pengujian autentikasi dan otorisasi berada pada `tests/Feature/AuthTest.php` dan memakai SQLite in-memory, sehingga tidak menyentuh database MySQL. Cakupan saat ini: registrasi, login berhasil dan gagal, akun nonaktif, pencegahan penyisipan peran admin, pembatasan akses `/admin`, pengalihan tautan eksternal, logout, serta pengelolaan akun pelanggan oleh admin.
+Pengujian berada pada `tests/Feature/` dan memakai SQLite in-memory, sehingga tidak menyentuh database MySQL. Setiap tes dijalankan pada database yang di-*migrate* ulang (`RefreshDatabase`), sehingga data antar-tes tidak saling memengaruhi.
+
+| Berkas | Cakupan |
+|---|---|
+| `AuthTest.php` | Registrasi, login berhasil dan gagal, akun nonaktif, pencegahan penyisipan peran admin, pembatasan akses `/admin`, pengalihan tautan eksternal, logout, kelola akun pelanggan |
+| `CatalogTest.php` | Katalog hanya produk aktif, pencarian dan filter, detail aktif/nonaktif, harga atau "Informasi belum tersedia", beranda dan sitemap, unit dari database pada cek ketersediaan |
+| `AdminCatalogTest.php` | Akses CRUD hanya admin, tambah/ubah produk, validasi penawaran/URL/spesifikasi/harga, slug tetap, nonaktifkan produk, unit dengan kode unik, unit dipensiunkan |
+| `AdminAccountTest.php` | Seed bawaan tidak membuat pengguna, perintah `pitlabs:create-admin` (buat, validasi, email ganda, reset, promosi), seeder manual |
+| `SmokeTest.php` | Seluruh halaman admin, pelanggan, dan publik dapat dirender; tema admin dan pelanggan tidak tertukar; hero beranda tanpa kartu ilustrasi |
+| `ExampleTest.php` | Beranda merespons 200 |
+
+> Catatan penulisan tes: kolom `users.email` bersifat unik. Bila satu tes memerlukan lebih dari satu pengguna dengan role yang sama, beri email berbeda pada fixture.
+
+## 🔄 Update & Git Workflow
+
+Folder proyek Laravel adalah repository Git. Pembaruan paket tidak perlu `composer create-project`; Composer hanya dijalankan sekali per komputer (atau saat `composer.json` berubah).
+
+```powershell
+# Terapkan paket pembaruan, uji, lalu kirim ke GitHub
+powershell -ExecutionPolicy Bypass -File scripts\update-pitlabs.ps1 -Zip "C:\path\pitlabs-xxx.zip"
+php artisan test
+powershell -ExecutionPolicy Bypass -File scripts\git-publish.ps1 -Message "Deskripsi perubahan" -Branch laravel
+```
+
+Menghubungkan proyek ke repository untuk pertama kali, komputer baru, kerja tim, dan tabel galat push ada di [`docs/GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md). Rencana pengembangan ada di [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## 🗂️ Project Structure
 
 ```text
 app/
 ├── Http/
-│   ├── Controllers/       # Publik, katalog, ketersediaan, auth, pelanggan, dan admin
+│   ├── Controllers/       # Publik, katalog, ketersediaan, auth, pelanggan, dan admin (produk, unit)
+│   ├── Requests/          # Validasi form produk dan unit
 │   └── Middleware/        # EnsureRole: otorisasi berdasarkan peran
 ├── Models/                # User, Category, Product, InventoryUnit
-└── Support/               # Helper (Pit) dan data contoh (MockCatalog, MockAvailability, MockData)
+└── Support/               # Helper (Pit), Catalog (katalog dari database), serta data contoh (MockAvailability, MockData)
 
 config/
 └── pitlabs.php            # Konfigurasi identitas, navigasi, dan label status
@@ -260,7 +313,7 @@ public/
     └── js/                # JavaScript aplikasi
 
 tests/
-└── Feature/               # Pengujian autentikasi dan otorisasi
+└── Feature/               # Pengujian autentikasi, katalog, CRUD admin, dan uji asap halaman
 
 docs/                      # Dokumentasi proyek
 ```
@@ -281,8 +334,8 @@ docs/                      # Dokumentasi proyek
         ┌────────┴──────────────┐
         ▼                       ▼
  Eloquent · MySQL         Mock Data Layer
- (users, categories,      (katalog, ketersediaan,
-  products, units)         pesanan, antrean, laporan)
+ (users, categories,      (jadwal booking, pesanan,
+  products, units)         antrean, laporan)
         └────────┬──────────────┘
                  ▼
             Blade Views
@@ -304,8 +357,10 @@ Autentikasi dan data akun sudah memakai database. Fitur lain masih memakai lapis
 | Dashboard administrator | 🟡 UI available · Mock data (akun pelanggan memakai database) |
 | Database dasar (users, categories, products, inventory_units) | ✅ Migration & seeder available |
 | Autentikasi, peran, dan otorisasi | ✅ Implemented · Menunggu pengujian tim |
-| Pengujian autentikasi | 🟡 Tests written · Perlu dijalankan tim |
-| Katalog dari database dan CRUD produk/unit | ⬜ Next |
+| Katalog dari database dan CRUD produk/unit | ✅ Implemented · Menunggu pengujian tim |
+| Dashboard admin: tema Navy × Yellow | ✅ Applied |
+| Pengujian otomatis (auth, katalog, CRUD, uji asap) | 🟡 Tests written · Dijalankan oleh tim |
+| Ketersediaan dan booking dari database | ⬜ Next |
 | Login Google (OAuth) | ⬜ Planned |
 | Booking, checkout, dan pembayaran nyata | ⬜ Planned |
 | Pengambilan, pengembalian, denda, dan laporan nyata | ⬜ Planned |
@@ -323,6 +378,9 @@ Dokumentasi tambahan tersedia pada direktori [`docs/`](docs/):
 - [`PJBL_CHECKLIST.md`](docs/PJBL_CHECKLIST.md) — pemetaan kriteria penilaian PjBL dan statusnya.
 - [`DATA_PRODUK_YANG_DIBUTUHKAN.md`](docs/DATA_PRODUK_YANG_DIBUTUHKAN.md) — data produk dan kebijakan yang menunggu dari mitra.
 - [`PEMBAGIAN_MODUL.md`](docs/PEMBAGIAN_MODUL.md) — usulan pembagian modul tim.
+- [`ROADMAP.md`](docs/ROADMAP.md) — rencana pengembangan berikutnya.
+- [`GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md) — alur pembaruan, GitHub, dan penanganan galat push.
+- [`TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) — penanganan masalah lingkungan (OpenSSL, PHP ganda, tes).
 - [`AGENTS.md`](AGENTS.md) — pedoman wajib bagi AI agent dan developer yang melanjutkan proyek.
 
 ## 🤝 Development Team — FAR STAR

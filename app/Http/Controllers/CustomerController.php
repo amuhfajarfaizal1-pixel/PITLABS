@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 use App\Support\MockAvailability;
-use App\Support\MockCatalog;
+use App\Support\Catalog;
 use App\Support\MockData;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -129,7 +129,7 @@ class CustomerController extends Controller
             'satuan' => ['required', 'in:hari,minggu,bulan'],
         ]);
 
-        $product = MockCatalog::find($data['produk']) ?? abort(422);
+        $product = Catalog::find($data['produk']) ?? abort(422);
         $start = CarbonImmutable::createFromFormat('Y-m-d', $data['mulai'], MockAvailability::TZ)->startOfDay();
         $n = (int) $data['durasi'];
         $end = match ($data['satuan']) {
@@ -163,7 +163,7 @@ class CustomerController extends Controller
 
     public function checkout(Request $request): View
     {
-        $products = array_values(array_filter(MockCatalog::all(), fn ($p) => $p['rental_enabled']));
+        $products = array_values(array_filter(Catalog::all(), fn ($p) => $p['rental_enabled']));
         $units = null;
         $summary = null;
 
@@ -185,7 +185,7 @@ class CustomerController extends Controller
                 };
                 $units = MockAvailability::check($request->query('produk'), $start, $end);
                 $summary = [
-                    'product' => MockCatalog::find($request->query('produk')),
+                    'product' => Catalog::find($request->query('produk')),
                     'start'   => $start->locale('id')->translatedFormat('j F Y'),
                     'end'     => $end->locale('id')->translatedFormat('j F Y'),
                     'days'    => (int) $start->diffInDays($end),
@@ -213,7 +213,7 @@ class CustomerController extends Controller
             'terms_accepted.accepted' => 'Anda harus menyetujui ketentuan sewa dan denda kerusakan/kehilangan.',
         ]);
 
-        $product = MockCatalog::find($data['produk']) ?? abort(422);
+        $product = Catalog::find($data['produk']) ?? abort(422);
         $start = CarbonImmutable::createFromFormat('Y-m-d', $data['mulai'], MockAvailability::TZ)->startOfDay();
         $n = (int) $data['durasi'];
         $end = match ($data['satuan']) {

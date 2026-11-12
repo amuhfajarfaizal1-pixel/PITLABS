@@ -125,7 +125,7 @@ class MockData
     {
         $units = [];
         foreach (['laptop', 'raspberry-pi-5', 'jetson-orin-nano', 'drone', 'kamera-mirrorless'] as $slug) {
-            $units = array_merge($units, MockAvailability::unitsFor($slug));
+            $units = array_merge($units, MockAvailability::unitsFor($slug) ?? []);
         }
         $count = fn (string $st) => count(array_filter($units, fn ($u) => $u['status'] === $st));
 
@@ -154,31 +154,6 @@ class MockData
         }
 
         return $out;
-    }
-
-    /** Daftar produk untuk tabel admin (mengikuti MockCatalog). */
-    public static function products(): array
-    {
-        return array_map(fn ($p) => [
-            'id'     => $p['slug'],
-            'name'   => $p['name'],
-            'type'   => $p['type'] === 'digital' ? 'Layanan digital' : 'Perangkat fisik',
-            'rental' => $p['rental_enabled'] ? 'Aktif' : 'Nonaktif',
-            'sale'   => $p['sale_enabled'] ? 'Aktif' : 'Nonaktif',
-            'units'  => $p['type'] === 'digital' ? 'Tanpa unit fisik' : (string) count(MockAvailability::unitsFor($p['slug']) ?? []).' unit',
-        ], MockCatalog::all());
-    }
-
-    public static function inventory(): array
-    {
-        $rows = [];
-        foreach (MockCatalog::all() as $p) {
-            foreach (MockAvailability::unitsFor($p['slug']) ?? [] as $u) {
-                $rows[] = ['id' => $u['code'], 'code' => $u['code'], 'product' => $p['name'], 'slug' => $p['slug'], 'status' => $u['status']];
-            }
-        }
-
-        return $rows;
     }
 
     /** Daftar pelanggan contoh (tab Pelanggan admin). */

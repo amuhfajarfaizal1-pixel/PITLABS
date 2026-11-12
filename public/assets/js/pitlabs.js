@@ -129,7 +129,7 @@
 
   /* ---------- Filter grid (div[data-pit-filter]) ---------- */
   // Tombol [data-filter] menyaring anak grid berdasarkan atribut data-type.
-  // Fase 3: data sementara dari MockCatalog; Fase 5 bisa diganti filter sisi server.
+  // Data berasal dari katalog di database (disaring di sisi klien; bisa dipindah ke sisi server).
 
   document.querySelectorAll('[data-pit-filter]').forEach(function (group) {
     var grid = document.querySelector(group.getAttribute('data-pit-filter'));

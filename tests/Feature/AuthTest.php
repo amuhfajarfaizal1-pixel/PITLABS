@@ -14,10 +14,15 @@ class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function user(string $role = 'CUSTOMER', bool $active = true, string $password = 'kata-sandi-aman-123'): User
+    /**
+     * Fixture pengguna. Email default dibentuk dari role ("customer@contoh.test"); untuk membuat
+     * lebih dari satu pengguna dengan role yang sama dalam satu tes, WAJIB beri $email berbeda
+     * (kolom users.email unik, dan itu tidak boleh dilonggarkan).
+     */
+    private function user(string $role = 'CUSTOMER', bool $active = true, string $password = 'kata-sandi-aman-123', ?string $email = null): User
     {
         return User::unguarded(fn () => User::create([
-            'name' => 'Uji Coba', 'email' => strtolower($role).'@contoh.test', 'password' => $password,
+            'name' => 'Uji Coba', 'email' => $email ?? strtolower($role).'@contoh.test', 'password' => $password,
             'role' => $role, 'is_active' => $active,
         ]));
     }
@@ -108,11 +113,15 @@ class AuthTest extends TestCase
 
     public function test_admin_dapat_menonaktifkan_pelanggan_dan_pelanggan_tidak_bisa(): void
     {
-        $customer = $this->user('CUSTOMER');
+        $target = $this->user('CUSTOMER');                                                  // customer@contoh.test
+        $admin = $this->user('ADMIN');                                                      // admin@contoh.test
+        $otherCustomer = $this->user('CUSTOMER', true, 'kata-sandi-aman-123', 'pelanggan-lain@contoh.test');
 
-        $this->actingAs($this->user('ADMIN'))->post("/admin/pelanggan/{$customer->id}/status")->assertRedirect();
-        $this->assertFalse($customer->fresh()->is_active);
+        $this->actingAs($admin)->post("/admin/pelanggan/{$target->id}/status")->assertRedirect();
+        $this->assertFalse($target->fresh()->is_active);
 
-        $this->actingAs($this->user('CUSTOMER', true))->post("/admin/pelanggan/{$customer->id}/status")->assertForbidden();
+        // pelanggan lain tidak boleh, dan status target tidak berubah lagi
+        $this->actingAs($otherCustomer)->post("/admin/pelanggan/{$target->id}/status")->assertForbidden();
+        $this->assertFalse($target->fresh()->is_active);
     }
 }

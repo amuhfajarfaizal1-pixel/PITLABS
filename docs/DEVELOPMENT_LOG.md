@@ -1,5 +1,29 @@
 # Development Log — PITLABS
 
+## 2026-11-11 — Akun admin manual; 5C ditunda
+- Permintaan pemilik: akun admin tidak dibuat otomatis; dibuat manual. 5C ditunda sampai ada data dari mitra.
+- Removed: `UserSeeder` (membuat admin dan pelanggan contoh otomatis saat `migrate --seed`).
+- Added: `php artisan pitlabs:create-admin` (`App\Console\Commands\CreateAdmin`; prompt tersembunyi, `--reset`, `--promote`), `App\Support\AdminAccount`, `AdminSeeder` manual (membaca `.env` lewat `config('pitlabs.admin_seed')`), `tests/Feature/AdminAccountTest.php` (6 tes).
+- Keputusan keamanan: kata sandi admin TIDAK ditulis di berkas kode karena repository publik; jalur yang disediakan adalah prompt Artisan dan `.env` (tidak di-commit).
+- Catatan lingkungan yang sudah ada: akun admin dari seeding lama tetap ada di database. Atur ulang dengan `php artisan pitlabs:create-admin --email=... --reset`.
+- Belum diuji oleh penulis (tanpa PHP). Mohon `php artisan test`.
+
+## 2026-11-11 — Alur pembaruan dan GitHub
+- Permintaan pemilik: tidak ingin `composer create-project` setiap pembaruan; push ke GitHub sering bermasalah; minta roadmap.
+- Added: `scripts/update-pitlabs.ps1` (terapkan zip tanpa Composer, hapus berkas usang, `optimize:clear`, opsi `-Migrate`), `scripts/git-publish.ps1` (pengaman `.env`/`vendor`, commit, `pull --rebase`, push), `.gitignore`, `.gitattributes`, `docs/GIT_WORKFLOW.md`, `docs/ROADMAP.md`; README bagian "Update & Git Workflow".
+- Catatan: Composer tidak dapat dihilangkan dari Laravel, tetapi hanya perlu sekali per komputer. Skrip PowerShell belum dijalankan di lingkungan penulis (tanpa PowerShell) dan hanya ditinjau manual; mohon dicoba dan laporkan galatnya.
+- Dugaan akar masalah push: repository berisi PHP native (riwayat dan struktur berbeda dari Laravel). Penyelesaian: cabang baru `laravel` (tidak destruktif) atau penggantian `main` dengan cadangan `legacy-native`. Galat sebenarnya belum diketahui; menunggu pesan galat dari pemilik.
+
+## 2026-11-11 — Perbaikan Fase 5: hero, tema admin, tes, OpenSSL
+- Laporan pemilik: `php artisan test` → 22 passed, 3 failed.
+- **Tes, akar masalah:** (A, B) fixture `admin()`/`user()` membuat pengguna dengan email tetap; tes yang memanggilnya dua kali melanggar `users.email` unik (perilaku constraint benar, fixture yang salah). Diperbaiki: satu admin per tes (`AdminCatalogTest`) dan fixture `user()` menerima email eksplisit untuk aktor kedua (`AuthTest`). (C) `ExampleTest` bawaan Laravel tidak memakai `RefreshDatabase`, sedangkan beranda kini membaca tabel `products` pada SQLite in-memory kosong. Diperbaiki dengan `RefreshDatabase` (migration dijalankan, data terisolasi). Tidak ada assertion dihapus, tes dimatikan, atau constraint dilonggarkan; `assertSame(1, ...)` ditambahkan pada tes produk ganda.
+- Added: `tests/Feature/SmokeTest.php` (3 tes: seluruh halaman admin/pelanggan/publik dapat dirender, tema tidak tertukar, hero tanpa kartu ilustrasi). Jumlah tes sekarang 28.
+- **Hero:** kartu ilustrasi dashboard (Jetson Orin Nano, status, progres, pembayaran) dihapus dari `home.blade.php` dan seluruh CSS `.pit-hero-card*` dihapus (bukan disembunyikan). Hero menjadi satu kolom rata tengah; tiga poin kepercayaan menjadi satu baris. Kelas `.pit-tile` (global) menggantikan pemakaian ubin ikon di halaman Asisten AI.
+- **Tema admin:** Navy × Yellow (#0B1F3A, #07172B, #FACC15, #2563EB, #F4F6FA) pada `dashboard.css` bagian `.pit-theme-admin`; sidebar Dark Navy dengan menu aktif kuning, topbar putih, kartu statistik navy/biru/kuning, tabel, tombol, grafik, toast. Berlaku di semua halaman yang memakai `layouts.dashboard` (seluruh admin). Dashboard pelanggan dan halaman publik tidak berubah.
+- **OpenSSL:** penyebab ada di konfigurasi PHP komputer, bukan proyek; diagnosis dan perbaikan di `docs/TROUBLESHOOTING.md`.
+- Dokumentasi: README, DESIGN_SYSTEM, PROJECT_DOCUMENTATION, AGENTS diperbarui (termasuk catatan 5B yang sebelumnya belum tercatat).
+- **Belum diuji oleh pengembang perubahan ini:** `php artisan test` tidak dapat dijalankan di lingkungan penulis (tanpa PHP). Mohon jalankan dan laporkan hasilnya.
+
 ## 2026-11-10 — Fase 5A: database dan autentikasi
 - Disetujui pemilik: backend dimulai dari database + autentikasi; PHP pemilik dilaporkan 8.5.x (perlu dikonfirmasi `php -v`); database `pitlabs` di MySQL XAMPP; payment gateway ditunda.
 - Added: migration (extend `users`, `categories`, `products`, `inventory_units`), model `User`/`Category`/`Product`/`InventoryUnit`, seeder (kategori, 7 produk, 15 unit contoh, akun admin dan pelanggan contoh), `EnsureRole`, `tests/Feature/AuthTest.php` (11 tes).

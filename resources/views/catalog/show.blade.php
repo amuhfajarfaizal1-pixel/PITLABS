@@ -41,13 +41,13 @@
                     @if ($product['rental_enabled'])
                         <div class="pit-price__row">
                             <span>Harga sewa</span>
-                            <x-pending :field="'product.'.$product['slug'].'.rental_daily_rate'" />
+                            @if ($product['rental_daily_rate'] !== null)<strong>{{ \App\Support\Pit::rupiah($product['rental_daily_rate']) }}</strong> / hari @else<x-pending :field="'product.'.$product['slug'].'.rental_daily_rate'" />@endif
                         </div>
                     @endif
                     @if ($product['sale_enabled'])
                         <div class="pit-price__row">
                             <span>Harga jual</span>
-                            <x-pending :field="'product.'.$product['slug'].'.sale_price'" />
+                            @if ($product['sale_price'] !== null)<strong>{{ \App\Support\Pit::rupiah($product['sale_price']) }}</strong> @else<x-pending :field="'product.'.$product['slug'].'.sale_price'" />@endif
                         </div>
                     @endif
                 </div>

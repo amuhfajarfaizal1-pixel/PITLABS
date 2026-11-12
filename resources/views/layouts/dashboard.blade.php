@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Dashboard') | {{ config('pitlabs.name') }}</title>
     <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#0A2540">
+    <meta name="theme-color" content="#0B1F3A">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

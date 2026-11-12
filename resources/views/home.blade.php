@@ -29,57 +29,22 @@
 {{-- ===== HERO ===== --}}
 <section class="pit-hero pit-on-navy" aria-labelledby="hero-title">
     <div class="container">
-        <div class="row align-items-center g-5">
+        <div class="pit-hero__inner">
+            <span class="pit-eyebrow">Penyewaan perangkat AI, IoT, dan teknologi</span>
+            <h1 id="hero-title" class="pit-display">Sewa perangkat AI dan IoT untuk proyek Anda berikutnya</h1>
+            <p class="pit-lead">Raspberry Pi 5, Jetson Orin Nano, laptop, drone, kamera mirrorless, dan Google Colab. Pesan online, ambil di lokasi admin, pantau masa sewa dari dashboard.</p>
 
-            <div class="col-lg-6">
-                <span class="pit-eyebrow">Penyewaan perangkat AI, IoT, dan teknologi</span>
-                <h1 id="hero-title" class="pit-display mb-4">Sewa perangkat AI dan IoT untuk proyek Anda berikutnya</h1>
-                <p class="pit-lead mb-4">Raspberry Pi 5, Jetson Orin Nano, laptop, drone, kamera mirrorless, dan Google Colab. Pesan online, ambil di lokasi admin, pantau masa sewa dari dashboard.</p>
-
-                <div class="d-grid d-sm-flex gap-3 mb-5">
-                    <a href="{{ $catalogUrl }}" class="btn btn-primary btn-lg">Jelajahi katalog</a>
-                    <a href="#cara-rental" class="btn btn-on-dark btn-lg">Lihat cara sewa</a>
-                </div>
-
-                <ul class="pit-trust list-unstyled mb-0">
-                    <li><i class="bi bi-patch-check" aria-hidden="true"></i> Kondisi perangkat diperiksa admin saat pengembalian</li>
-                    <li><i class="bi bi-qr-code" aria-hidden="true"></i> Invoice dengan QR untuk verifikasi pengambilan</li>
-                    <li><i class="bi bi-layout-split" aria-hidden="true"></i> Status pembayaran dan pengambilan ditampilkan terpisah</li>
-                </ul>
-            </div>
-
-            <div class="col-lg-6">
-                <div class="pit-hero-card" role="group" aria-label="Contoh tampilan dashboard penyewaan">
-                    <p class="pit-hero-card__label"><i class="bi bi-window" aria-hidden="true"></i> Contoh tampilan dashboard</p>
-
-                    <div class="pit-hero-card__item">
-                        <span class="pit-hero-card__tile" aria-hidden="true"><i class="bi bi-cpu"></i></span>
-                        <div>
-                            <p class="pit-hero-card__name">Jetson Orin Nano</p>
-                            <p class="pit-hero-card__meta"><span class="pit-mono">INV-CONTOH-001</span> · unit <span class="pit-mono">JON-001</span></p>
-                        </div>
-                    </div>
-
-                    <div class="pit-hero-card__statuses">
-                        <x-status-badge group="payment" status="PAID" />
-                        <x-status-badge group="pickup" status="PICKED_UP" />
-                        <x-status-badge group="rental" status="RENTING" />
-                    </div>
-
-                    <div class="pit-hero-card__time">
-                        <div class="d-flex justify-content-between small mb-1">
-                            <span>Masa sewa berjalan</span>
-                            <span class="text-muted-pit">Contoh: hari ke-5 dari 7</span>
-                        </div>
-                        <div class="progress" role="progressbar" aria-label="Contoh progres masa sewa" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-bar" style="width: 70%"></div>
-                        </div>
-                    </div>
-
-                    <p class="pit-hero-card__note"><i class="bi bi-info-circle" aria-hidden="true"></i> Pembayaran berhasil tidak berarti barang sudah diambil.</p>
-                </div>
+            <div class="pit-hero__cta">
+                <a href="{{ $catalogUrl }}" class="btn btn-primary btn-lg">Jelajahi katalog</a>
+                <a href="#cara-rental" class="btn btn-on-dark btn-lg">Lihat cara sewa</a>
             </div>
         </div>
+
+        <ul class="pit-trust list-unstyled">
+            <li><i class="bi bi-patch-check" aria-hidden="true"></i><span>Kondisi perangkat diperiksa admin saat pengembalian</span></li>
+            <li><i class="bi bi-qr-code" aria-hidden="true"></i><span>Invoice dengan QR untuk verifikasi pengambilan</span></li>
+            <li><i class="bi bi-layout-split" aria-hidden="true"></i><span>Status pembayaran dan pengambilan ditampilkan terpisah</span></li>
+        </ul>
     </div>
 </section>
 

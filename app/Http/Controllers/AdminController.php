@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Support\MockCatalog;
 use App\Support\MockData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -124,27 +123,6 @@ class AdminController extends Controller
         ];
 
         return view('admin.fines', ['rows' => $rows]);
-    }
-
-    public function products(): View
-    {
-        $rows = array_map(fn ($p) => $p + [
-            'stack'   => [$p['name'], '/produk/'.$p['id']],
-            '_actions' => [['label' => 'Lihat halaman', 'variant' => 'soft', 'href' => route('catalog.show', $p['id'])]],
-        ], MockData::products());
-
-        return view('admin.products', ['rows' => $rows]);
-    }
-
-    public function inventory(): View
-    {
-        $products = array_values(array_unique(array_column(MockData::inventory(), 'product')));
-
-        return view('admin.inventory', [
-            'rows'     => MockData::inventory(),
-            'products' => $products,
-            'catalog'  => array_filter(MockCatalog::all(), fn ($p) => $p['type'] === 'physical'),
-        ]);
     }
 
     /** Daftar pelanggan dari DATABASE (Fase 5A). */

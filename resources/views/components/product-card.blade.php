@@ -23,7 +23,7 @@
         <h3 class="pit-product__name">
             @if ($url)<a href="{{ $url }}" class="stretched-link">{{ $product['name'] }}</a>@else{{ $product['name'] }}@endif
         </h3>
-        <p class="pit-product__price">Harga: <x-pending :field="'product.'.$product['slug'].'.price'" /></p>
+        <p class="pit-product__price">@if ($product['rental_enabled'] && $product['rental_daily_rate'] !== null)Sewa mulai <strong>{{ \App\Support\Pit::rupiah($product['rental_daily_rate']) }}</strong>/hari @else Harga: <x-pending :field="'product.'.$product['slug'].'.price'" />@endif</p>
         @unless ($url)
             <p class="pit-product__soon">Halaman detail menyusul</p>
         @endunless

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\MockCatalog;
+use App\Support\Catalog;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -11,7 +11,7 @@ class HomeController extends Controller
     {
         // Fase 3: data sementara. Fase 5 → ganti dengan query Product.
         return view('home', [
-            'products' => MockCatalog::all(),
+            'products' => Catalog::all(),
         ]);
     }
 }

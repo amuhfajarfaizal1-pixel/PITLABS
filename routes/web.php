@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\AdminUnitController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\CatalogController;
@@ -63,12 +65,26 @@ Route::middleware(['auth', EnsureRole::class.':admin'])->prefix('admin')->name('
     Route::get('/pengembalian', 'returns')->name('returns');
     Route::get('/pemeriksaan-kondisi', 'inspections')->name('inspections');
     Route::get('/denda', 'fines')->name('fines');
-    Route::get('/produk', 'products')->name('products');
-    Route::get('/inventaris', 'inventory')->name('inventory');
     Route::get('/pelanggan', 'customers')->name('customers');
     Route::post('/pelanggan/{user}/status', 'toggleCustomer')->name('customers.toggle');
     Route::get('/antrean-rental', 'waitlist')->name('waitlist');
     Route::get('/laporan-keuangan', 'reports')->name('reports');
+});
+
+/* Admin: CRUD katalog dan inventaris (Fase 5B). Produk dan unit tidak dihapus, hanya dinonaktifkan/dipensiunkan. */
+Route::middleware(['auth', EnsureRole::class.':admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/produk', [AdminProductController::class, 'index'])->name('products');
+    Route::get('/produk/baru', [AdminProductController::class, 'create'])->name('products.create');
+    Route::post('/produk', [AdminProductController::class, 'store'])->name('products.store');
+    Route::get('/produk/{product}/ubah', [AdminProductController::class, 'edit'])->name('products.edit');
+    Route::put('/produk/{product}', [AdminProductController::class, 'update'])->name('products.update');
+    Route::post('/produk/{product}/status', [AdminProductController::class, 'toggle'])->name('products.toggle');
+
+    Route::get('/inventaris', [AdminUnitController::class, 'index'])->name('inventory');
+    Route::get('/inventaris/baru', [AdminUnitController::class, 'create'])->name('units.create');
+    Route::post('/inventaris', [AdminUnitController::class, 'store'])->name('units.store');
+    Route::get('/inventaris/{unit}/ubah', [AdminUnitController::class, 'edit'])->name('units.edit');
+    Route::put('/inventaris/{unit}', [AdminUnitController::class, 'update'])->name('units.update');
 });
 
 /*

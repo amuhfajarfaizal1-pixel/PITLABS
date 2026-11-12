@@ -379,3 +379,6 @@ h4, .h4 { font-size: 1.125rem; }
 .pit-breadcrumb li + li::before { content: "/"; margin-right: .25rem; color: #8EA0B2; }
 .pit-breadcrumb a { color: var(--pit-sapphire); text-underline-offset: 3px; }
 .pit-breadcrumb li[aria-current] { color: var(--pit-muted); }
+
+/* 17. UBIN IKON (Fase 5) -------------------------------------------- */
+.pit-tile { width: 56px; height: 56px; border-radius: var(--pit-radius-md); background: var(--pit-sapphire-soft); color: var(--pit-sapphire); display: grid; place-items: center; font-size: 1.5rem; flex: none; }

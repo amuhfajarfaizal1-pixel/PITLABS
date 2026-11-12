@@ -12,6 +12,7 @@ Pedoman untuk developer dan AI agent. Baca bersama [../README.md](../README.md),
 - **Awal:** prototipe statis HTML/CSS lalu prototipe **PHP native + MySQL (XAMPP)**: router `?page=`, 7 tabel, data produk dari database. Desain dasar (hero navy, kartu produk, tab admin) berasal dari sini.
 - **Pindah ke Laravel:** ketentuan PjBL mewajibkan Bootstrap + framework (Laravel/CodeIgniter); URL bersih untuk SEO; struktur Blade/komponen lebih mudah dirawat dan diuji. Stack final: Laravel + Blade + Bootstrap 5.
 - **Fase 1** analisis referensi dan keputusan stack · **Fase 2** design system · **Fase 3** homepage · **Fase 4** katalog, detail, ketersediaan, auth (UI), dashboard pelanggan dan admin, checkout, invoice, halaman informasi, antrean rental.
+- **Perbaikan UI (Fase 5):** kartu ilustrasi di hero homepage dihapus (hero satu kolom); tema admin diganti Navy × Yellow dan diterapkan ke seluruh halaman admin; tes diperbaiki (isolasi database, fixture unik).
 - **Fase 5A** database (MySQL) + autentikasi sungguhan: migration, model, seeder, Laravel Auth, role, throttle, profil, ganti kata sandi, daftar pelanggan admin, tes autentikasi.
 - **Belum:** Fase 5B dst. dan Fase 6–7. Kronologi rinci dan file terdampak: [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md).
 
@@ -40,7 +41,7 @@ Pedoman untuk developer dan AI agent. Baca bersama [../README.md](../README.md),
 Rincian token, komponen, dan aturan: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md). Ringkas:
 - **Brand:** Navy #0A2540, Sapphire #1463FF, Cyan #00A3FF, Turquoise #00F5D4, Light Gray #E9ECEF. **Oranye hanya tombol Beli via Shopee.**
 - **Logo:** `public/assets/img/logo-pitlabs.png`; huruf "IT" berwarna navy, jadi di latar navy harus di atas panel putih.
-- **Dashboard pelanggan:** identitas brand (Sapphire). **Dashboard admin:** Bright Yellow #FFCE1F × Charcoal #0F1826 × netral; teks di atas kuning selalu navy. Keduanya berbagi komponen; hanya variabel `--dash-*` yang berbeda.
+- **Dashboard pelanggan:** identitas brand (Sapphire). **Dashboard admin:** Navy #0B1F3A / #07172B × Yellow #FACC15 × Blue #2563EB × netral #F4F6FA; teks di atas kuning selalu navy. Keduanya berbagi komponen; hanya variabel `--dash-*` yang berbeda.
 - **Status:** order, pembayaran, pengambilan, penyewaan **selalu terpisah**; badge = ikon + teks.
 
 ## F. Sistem
@@ -57,7 +58,7 @@ Rincian token, komponen, dan aturan: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md). Ringk
 Aturan bisnis resmi: BUSINESS_RULES.md pada Documentation Pack (status terpisah, COD, bentrok periode `new_start < existing_end AND new_end > existing_start`, inspeksi sebelum denda).
 
 ## F2. Basis data (5A)
-Tabel yang sudah ada: `users`, `categories`, `products`, `inventory_units` (+ tabel bawaan Laravel: `sessions`, `cache`, `jobs`, `password_reset_tokens`). Mengikuti [schema.sql pada Documentation Pack], dengan dua penyesuaian: kolom kata sandi bernama `password` (konvensi Laravel, bukan `password_hash`) dan nullable (akun Google); `users.google_id` ditambahkan untuk 5B. Role: `CUSTOMER` | `ADMIN`. Tabel pesanan, reservasi, pembayaran, invoice, serah-terima, pemeriksaan, denda, dan audit dibuat pada batch berikutnya. Seeder: 2 kategori, 7 produk (tanpa harga/spesifikasi), 15 unit contoh, akun admin (dan pelanggan contoh di `local`).
+Tabel yang sudah ada: `users`, `categories`, `products`, `inventory_units` (+ tabel bawaan Laravel: `sessions`, `cache`, `jobs`, `password_reset_tokens`). Mengikuti [schema.sql pada Documentation Pack], dengan dua penyesuaian: kolom kata sandi bernama `password` (konvensi Laravel, bukan `password_hash`) dan nullable (akun Google); `users.google_id` ditambahkan untuk 5B. Role: `CUSTOMER` | `ADMIN`. Tabel pesanan, reservasi, pembayaran, invoice, serah-terima, pemeriksaan, denda, dan audit dibuat pada batch berikutnya. Seeder bawaan: 2 kategori, 7 produk (tanpa harga/spesifikasi), 15 unit contoh. **Akun admin dibuat manual** (`php artisan pitlabs:create-admin` atau `AdminSeeder` yang membaca `.env`); tidak ada akun yang dibuat otomatis.
 
 ## G. Catatan perkembangan
 Lihat [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md) (kronologis, dengan file terdampak). Tanggal hanya dicatat jika diketahui; belum ada riwayat commit yang dapat diverifikasi dari dokumentasi ini.

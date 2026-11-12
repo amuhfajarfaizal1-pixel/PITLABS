@@ -1,0 +1,33 @@
+# Rahasia dan konfigurasi lokal — JANGAN di-commit
+.env
+.env.*
+!.env.example
+auth.json
+
+# Dependensi (dipasang ulang dengan "composer install")
+/vendor
+/node_modules
+
+# Laravel
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+.phpunit.cache
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+*.log
+
+# Editor dan sistem
+/.idea
+/.vscode
+/.fleet
+/.nova
+/.zed
+.DS_Store
+Thumbs.db
+
+# Paket pembaruan
+*.zip

@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             ProductSeeder::class,
             InventoryUnitSeeder::class,
-            UserSeeder::class,
+            // Akun admin TIDAK dibuat otomatis: gunakan `php artisan pitlabs:create-admin`.
         ]);
     }
 }
