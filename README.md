@@ -91,7 +91,7 @@ Untuk produk yang tersedia untuk dibeli, halaman detail dapat mengarahkan penggu
         <li>QR scanner dan verifikasi pengambilan.</li>
         <li>Pengembalian dan pemeriksaan kondisi perangkat.</li>
         <li>Pengelolaan akun pelanggan: lihat, aktifkan, dan nonaktifkan (data dari database).</li>
-        <li>CRUD produk dan unit inventaris (produk dinonaktifkan, unit dipensiunkan; tidak dihapus).</li>
+        <li>CRUD produk dan unit inventaris (produk dinonaktifkan, unit dipensiunkan; tidak dihapus) serta unggah foto produk.</li>
         <li>Pengelolaan denda dan antrean.</li>
         <li>Tampilan laporan keuangan.</li>
       </ul>
@@ -133,6 +133,7 @@ Pastikan lingkungan pengembangan sudah memiliki:
 - Ekstensi PHP: `mbstring`, `openssl`, `fileinfo`, `curl`, `zip`, dan `pdo_mysql`. Untuk menjalankan tes, aktifkan juga `pdo_sqlite`.
 - Browser modern.
 - Koneksi internet untuk memuat Bootstrap dan font dari CDN.
+- Paket QR invoice (sekali saja): `composer require bacon/bacon-qr-code`.
 
 > PHP 8.0 belum memenuhi persyaratan minimum aplikasi.
 >
@@ -259,6 +260,7 @@ Pengujian berada pada `tests/Feature/` dan memakai SQLite in-memory, sehingga ti
 | `AuthTest.php` | Registrasi, login berhasil dan gagal, akun nonaktif, pencegahan penyisipan peran admin, pembatasan akses `/admin`, pengalihan tautan eksternal, logout, kelola akun pelanggan |
 | `CatalogTest.php` | Katalog hanya produk aktif, pencarian dan filter, detail aktif/nonaktif, harga atau "Informasi belum tersedia", beranda dan sitemap, unit dari database pada cek ketersediaan |
 | `AdminCatalogTest.php` | Akses CRUD hanya admin, tambah/ubah produk, validasi penawaran/URL/spesifikasi/harga, slug tetap, nonaktifkan produk, unit dengan kode unik, unit dipensiunkan |
+| `AdminCatalogTest.php` (foto) | Unggah foto + teks alternatif, penolakan berkas non-gambar/penyamar/SVG, ganti dan hapus foto membersihkan berkas lama |
 | `AdminAccountTest.php` | Seed bawaan tidak membuat pengguna, perintah `pitlabs:create-admin` (buat, validasi, email ganda, reset, promosi), seeder manual |
 | `SmokeTest.php` | Seluruh halaman admin, pelanggan, dan publik dapat dirender; tema admin dan pelanggan tidak tertukar; hero beranda tanpa kartu ilustrasi |
 | `ExampleTest.php` | Beranda merespons 200 |
@@ -277,6 +279,10 @@ powershell -ExecutionPolicy Bypass -File scripts\git-publish.ps1 -Message "Deskr
 ```
 
 Menghubungkan proyek ke repository untuk pertama kali, komputer baru, kerja tim, dan tabel galat push ada di [`docs/GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md). Rencana pengembangan ada di [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+## 🖼️ Foto Produk
+
+Admin mengunggah foto dari **Admin → Produk → Ubah** (JPG, PNG, atau WebP, maksimal 2 MB; SVG ditolak). File disimpan di `public/uploads/products/` dengan nama acak, tanpa `storage:link` (symlink sering bermasalah di Windows). Folder `public/uploads/` memiliki `.htaccess` yang menolak eksekusi skrip. Foto **tidak ikut Git** (`.gitignore`): pada server, folder ini harus dipertahankan dan dicadangkan. Isi **teks alternatif** agar gambar ramah SEO dan pembaca layar.
 
 ## 🗂️ Project Structure
 
@@ -380,6 +386,8 @@ Dokumentasi tambahan tersedia pada direktori [`docs/`](docs/):
 - [`PEMBAGIAN_MODUL.md`](docs/PEMBAGIAN_MODUL.md) — usulan pembagian modul tim.
 - [`ROADMAP.md`](docs/ROADMAP.md) — rencana pengembangan berikutnya.
 - [`GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md) — alur pembaruan, GitHub, dan penanganan galat push.
+- [`DEPLOY_FTP.md`](docs/DEPLOY_FTP.md) — panduan deploy ke hosting FTP tanpa SSH dan tanpa Composer di server.
+- [`LOGBOOK_NOTES.md`](docs/LOGBOOK_NOTES.md), [`REPORT_NOTES.md`](docs/REPORT_NOTES.md), [`SCREENSHOT_GUIDE.md`](docs/SCREENSHOT_GUIDE.md) — bahan logbook, laporan PjBL, dan daftar bukti tangkapan layar.
 - [`TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) — penanganan masalah lingkungan (OpenSSL, PHP ganda, tes).
 - [`AGENTS.md`](AGENTS.md) — pedoman wajib bagi AI agent dan developer yang melanjutkan proyek.
 

@@ -14,7 +14,7 @@ class SmokeTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function login(string $role): User
+    private function masukSebagai(string $role): User
     {
         $user = User::unguarded(fn () => User::create([
             'name' => 'Uji Asap', 'email' => strtolower($role).'@contoh.test', 'password' => 'kata-sandi-aman-123',
@@ -34,13 +34,13 @@ class SmokeTest extends TestCase
 
     public function test_semua_halaman_admin_dapat_dibuka_dengan_tema_admin(): void
     {
-        $this->login('ADMIN');
+        $this->masukSebagai('ADMIN');
 
         $this->assertPagesOk([
             '/admin', '/admin/new-orders', '/admin/ongoing-rentals', '/admin/verifikasi-pembayaran', '/admin/qr-scanner',
             '/admin/verifikasi-pengambilan', '/admin/pengembalian', '/admin/pemeriksaan-kondisi', '/admin/denda',
             '/admin/produk', '/admin/produk/baru', '/admin/inventaris', '/admin/inventaris/baru',
-            '/admin/pelanggan', '/admin/antrean-rental', '/admin/laporan-keuangan', '/invoice/INV-CONTOH-001',
+            '/admin/pelanggan', '/admin/antrean-rental', '/admin/laporan-keuangan', '/admin/pengaturan', '/invoice/INV-CONTOH-001',
         ]);
 
         $this->get('/admin')->assertSee('pit-theme-admin', false)->assertDontSee('pit-theme-user', false);
@@ -48,7 +48,7 @@ class SmokeTest extends TestCase
 
     public function test_semua_halaman_pelanggan_dapat_dibuka_dengan_tema_pelanggan(): void
     {
-        $this->login('CUSTOMER');
+        $this->masukSebagai('CUSTOMER');
 
         $this->assertPagesOk([
             '/dashboard', '/dashboard/penyewaan-aktif', '/dashboard/riwayat', '/dashboard/antrean',

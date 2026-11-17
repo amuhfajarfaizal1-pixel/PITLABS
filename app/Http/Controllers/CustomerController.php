@@ -5,7 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
-use App\Support\MockAvailability;
+use App\Exceptions\BookingException;
+use App\Models\Invoice;
+use App\Models\Product;
+use App\Models\RentalOrder;
+use App\Support\Availability;
+use App\Support\BookingService;
+use App\Support\InvoiceQr;
+use App\Support\Pit;
 use App\Support\Catalog;
 use App\Support\MockData;
 use Carbon\CarbonImmutable;
@@ -65,17 +72,28 @@ class CustomerController extends Controller
         return back()->with('status', 'Kata sandi diubah.');
     }
 
+    /** Pesanan milik pelanggan yang login, dari DATABASE. */
+    private function myOrders(): array
+    {
+        return RentalOrder::with(['items', 'invoice', 'user'])
+            ->where('user_id', Auth::id())
+            ->latest('id')
+            ->get()
+            ->map(fn (RentalOrder $o) => $o->toViewArray())
+            ->all();
+    }
+
     private function orders(): array
     {
         return array_map(function (array $o) {
             $o['due_label'] = $o['due_in'] < 0 ? 'Terlambat '.abs($o['due_in']).' hari'
                 : ($o['due_in'] === 0 ? 'Berakhir hari ini' : $o['due_in'].' hari lagi');
             $total = max(1, (int) $o['start']->diffInDays($o['end']));
-            $done = (int) $o['start']->diffInDays(MockAvailability::today(), false);
+            $done = (int) $o['start']->diffInDays(Availability::today(), false);
             $o['progress'] = max(0, min(100, (int) round($done / $total * 100)));
 
             return $o;
-        }, MockData::forCustomer());
+        }, $this->myOrders());
     }
 
     public function dashboard(): View
@@ -130,7 +148,7 @@ class CustomerController extends Controller
         ]);
 
         $product = Catalog::find($data['produk']) ?? abort(422);
-        $start = CarbonImmutable::createFromFormat('Y-m-d', $data['mulai'], MockAvailability::TZ)->startOfDay();
+        $start = CarbonImmutable::createFromFormat('Y-m-d', $data['mulai'], Availability::TZ)->startOfDay();
         $n = (int) $data['durasi'];
         $end = match ($data['satuan']) {
             'minggu' => $start->addWeeks($n),
@@ -175,15 +193,15 @@ class CustomerController extends Controller
         ]);
 
         if (! $v->fails()) {
-            $start = CarbonImmutable::createFromFormat('Y-m-d', $request->query('mulai'), MockAvailability::TZ)->startOfDay();
-            if ($start >= MockAvailability::today()) {
+            $start = CarbonImmutable::createFromFormat('Y-m-d', $request->query('mulai'), Availability::TZ)->startOfDay();
+            if ($start >= Availability::today()) {
                 $n = (int) $request->query('durasi');
                 $end = match ($request->query('satuan')) {
                     'minggu' => $start->addWeeks($n),
                     'bulan'  => $start->addMonthsNoOverflow($n),
                     default  => $start->addDays($n),
                 };
-                $units = MockAvailability::check($request->query('produk'), $start, $end);
+                $units = Availability::check($request->query('produk'), $start, $end);
                 $summary = [
                     'product' => Catalog::find($request->query('produk')),
                     'start'   => $start->locale('id')->translatedFormat('j F Y'),
@@ -203,65 +221,69 @@ class CustomerController extends Controller
             'mulai'          => ['required', 'date_format:Y-m-d'],
             'durasi'         => ['required', 'integer', 'min:1', 'max:90'],
             'satuan'         => ['required', 'in:hari,minggu,bulan'],
-            'unit'           => ['required', 'string', 'max:20'],
-            'metode'         => ['required', 'in:QRIS,VA,COD'],
+            'unit'           => ['required', 'string', 'max:80'],
+            'metode'         => ['required', 'in:COD'],
             'terms_accepted' => ['accepted'],
         ], [
             'unit.required'           => 'Pilih unit yang tersedia.',
             'metode.required'         => 'Pilih metode pembayaran.',
-            'metode.in'               => 'Metode pembayaran tidak valid.',
+            'metode.in'               => 'Pembayaran online belum tersedia. Pilih COD.',
             'terms_accepted.accepted' => 'Anda harus menyetujui ketentuan sewa dan denda kerusakan/kehilangan.',
         ]);
 
-        $product = Catalog::find($data['produk']) ?? abort(422);
-        $start = CarbonImmutable::createFromFormat('Y-m-d', $data['mulai'], MockAvailability::TZ)->startOfDay();
+        $product = Product::active()->where('slug', $data['produk'])->first();
+        $start = Availability::startOf($data['mulai']);
+        if (! $product || ! $start) {
+            return back()->withInput()->withErrors(['booking' => 'Produk atau tanggal tidak valid. Ulangi dari langkah 1.']);
+        }
+
         $n = (int) $data['durasi'];
         $end = match ($data['satuan']) {
             'minggu' => $start->addWeeks($n),
             'bulan'  => $start->addMonthsNoOverflow($n),
             default  => $start->addDays($n),
         };
-        $fmt = fn (CarbonImmutable $d) => $d->locale('id')->translatedFormat('j M');
-        $cod = $data['metode'] === 'COD';
 
-        // Invoice dibuat sejak pesanan terbentuk, termasuk COD (BUSINESS_RULES §4, §9).
-        session(['pit_demo_order' => [
-            'id'       => 0,
-            'invoice'  => 'INV-DEMO-'.now(MockAvailability::TZ)->format('ymd-His'),
-            'customer' => Auth::user()->name,
-            'product'  => $product['name'],
-            'unit'     => $data['unit'],
-            'period'   => $fmt($start).' – '.$fmt($end),
-            'start_full' => $start->locale('id')->translatedFormat('j F Y'),
-            'end_full'   => $end->locale('id')->translatedFormat('j F Y'),
-            'days'     => (int) $start->diffInDays($end),
-            'method'   => $data['metode'] === 'VA' ? 'Virtual account' : $data['metode'],
-            'total'    => null, // tarif belum ditetapkan mitra
-            'order'    => $cod ? 'WAITING_PAYMENT' : 'NEW_ORDER',
-            'payment'  => 'UNPAID',
-            'pickup'   => 'NOT_PICKED_UP',
-            'rental'   => 'NOT_STARTED',
-        ]]);
+        try {
+            $order = BookingService::create($request->user(), $product, $start, $end, $data['unit'], $data['metode'], CarbonImmutable::now('UTC'));
+        } catch (BookingException $e) {
+            return back()->withInput()->withErrors(['booking' => $e->getMessage()]);
+        }
 
-        return redirect()->route('invoice.show', 'baru')
-            ->with('status', 'Pesanan simulasi dibuat dan invoice terbit. Pesanan belum disimpan ke database.');
+        return redirect()->route('invoice.show', $order->invoice->invoice_number)
+            ->with('status', 'Pesanan dibuat dan invoice terbit. Tunjukkan QR invoice kepada admin saat pengambilan.');
     }
 
     /* ---------- Invoice ---------- */
 
-    public function invoice(string $number): View
+    public function invoice(Request $request, string $number): View
     {
-        $order = $number === 'baru' ? session('pit_demo_order') : MockData::order($number);
-        abort_if(! $order, 404);
+        $invoice = Invoice::with(['order.items', 'order.user'])->where('invoice_number', $number)->first();
 
-        $order['start_full'] ??= $order['start']->locale('id')->translatedFormat('j F Y');
-        $order['end_full']   ??= $order['end']->locale('id')->translatedFormat('j F Y');
-        $order['days']       ??= (int) $order['start']->diffInDays($order['end']);
+        if ($invoice) {
+            // Hanya pemilik pesanan atau admin. 404 (bukan 403) agar nomor invoice tidak dapat ditebak.
+            abort_unless($request->user()->isAdmin() || $invoice->order->user_id === $request->user()->id, 404);
+
+            return view('invoice', [
+                'o'           => $invoice->order->toViewArray(),
+                'qrSvg'       => InvoiceQr::svg($invoice->invoice_number),
+                'qrAvailable' => InvoiceQr::available(),
+                'qr'          => null,
+                'issued'      => CarbonImmutable::createFromInterface($invoice->issued_at)->setTimezone(Availability::TZ)->locale('id')->translatedFormat('j F Y'),
+            ]);
+        }
+
+        // Invoice CONTOH milik halaman admin yang masih memakai data contoh (sampai 5C-2).
+        $sample = config('pitlabs.demo_mode') && str_starts_with($number, 'INV-CONTOH-') ? MockData::order($number) : null;
+        abort_if(! $sample, 404);
+
+        $sample['start_full'] = $sample['start']->locale('id')->translatedFormat('j F Y');
+        $sample['end_full'] = $sample['end']->locale('id')->translatedFormat('j F Y');
+        $sample['days'] = (int) $sample['start']->diffInDays($sample['end']);
 
         return view('invoice', [
-            'o'      => $order,
-            'qr'     => \App\Support\Pit::qrPlaceholder($order['invoice']),
-            'issued' => MockAvailability::today()->locale('id')->translatedFormat('j F Y'),
+            'o' => $sample, 'qrSvg' => null, 'qrAvailable' => true, 'qr' => Pit::qrPlaceholder($number),
+            'issued' => Availability::today()->locale('id')->translatedFormat('j F Y'),
         ]);
     }
 }

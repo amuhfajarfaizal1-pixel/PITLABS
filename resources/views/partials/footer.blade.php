@@ -27,7 +27,7 @@
                 <h2 class="pit-footer__heading">{{ config('pitlabs.company') }}</h2>
                 <dl class="pit-footer__contact">
                     <dt>Lokasi pengambilan</dt>
-                    <dd><x-pending field="contact.address" dark /></dd>
+                    <dd><x-setting key="contact.pickup_address" field="contact.address" dark /></dd>
                     <dt>Email</dt>
                     <dd><x-pending field="contact.email" dark /></dd>
                     <dt>WhatsApp</dt>

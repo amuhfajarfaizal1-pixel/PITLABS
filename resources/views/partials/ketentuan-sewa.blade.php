@@ -17,7 +17,7 @@
                         </div>
                         <div class="pit-terms__row">
                             <dt>Lokasi pengambilan</dt>
-                            <dd><x-pending field="terms.pickup_address" /></dd>
+                            <dd><x-setting key="contact.pickup_address" field="terms.pickup_address" /></dd>
                         </div>
                         <div class="pit-terms__row">
                             <dt>Pemeriksaan saat pengembalian</dt>
@@ -41,7 +41,14 @@
                         </div>
                         <div class="pit-terms__row">
                             <dt>Durasi minimum dan maksimum</dt>
-                            <dd><x-pending field="terms.duration_limits" /></dd>
+                            <dd>
+                                @php $minD = \App\Models\Setting::intValue('rental.min_days'); $maxD = \App\Models\Setting::intValue('rental.max_days'); @endphp
+                                @if ($minD !== null || $maxD !== null)
+                                    Minimum {{ $minD ?? 1 }} hari, maksimum {{ $maxD !== null ? $maxD.' hari' : 'sesuai kesepakatan dengan admin' }}.
+                                @else
+                                    <x-pending field="terms.duration_limits" />
+                                @endif
+                            </dd>
                         </div>
                         <div class="pit-terms__row">
                             <dt>Pembatalan dan refund</dt>

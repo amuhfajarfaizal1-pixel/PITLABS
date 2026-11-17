@@ -287,3 +287,7 @@
 .pit-theme-admin .dash-toast { background: #0B1F3A; }
 .pit-theme-admin .dash-toast .bi-check-circle-fill { color: #FACC15; }
 .pit-theme-admin .dash-progress > span { background: #2563EB; }
+
+/* QR invoice (SVG sungguhan) */
+.pit-invoice__qrbox { width: 168px; padding: 8px; background: #fff; border: 1px solid var(--dash-border); border-radius: var(--pit-radius-md); }
+.pit-invoice__qrbox svg { display: block; width: 100%; height: auto; }

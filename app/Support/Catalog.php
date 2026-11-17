@@ -39,7 +39,7 @@ class Catalog
         $rows = $query->get()->map->toViewArray()->all();
 
         if ($onlyAvailable) {
-            $rows = array_values(array_filter($rows, fn ($p) => $p['type'] === 'digital' || MockAvailability::availableNow($p['slug']) > 0));
+            $rows = array_values(array_filter($rows, fn ($p) => $p['type'] === 'digital' || Availability::availableNow($p['slug']) > 0));
         }
 
         return $rows;

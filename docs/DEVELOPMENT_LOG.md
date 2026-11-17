@@ -1,5 +1,39 @@
 # Development Log — PITLABS
 
+## 2026-11-15 — Fase 5C-1: booking, checkout, invoice ber-QR (belum diuji)
+- Keputusan pemilik: (1A) parameter sewa dikosongkan dulu dan diisi admin; (2) scan invoice nyata dengan QR dan kamera, QR disusun supaya admin cukup memindai lalu mengonfirmasi; (3) tema mengikuti perangkat dan dapat diubah; (4) deploy ditunda; (5) pemetaan minggu dikonfirmasi.
+- Added: migration `settings`, `rental_orders`, `rental_order_items`, `reservations`, `invoices`, `payments`, `audit_logs` (mengikuti `schema.sql`; kolom uang dibuat NULLABLE karena tarif belum ditetapkan: penyimpangan dari docs yang disengaja).
+- Added: model `RentalOrder`, `RentalOrderItem`, `Reservation`, `Invoice`, `Payment`, `AuditLog`, `Setting`; layanan `App\Support\BookingService` (satu transaksi, kunci baris unit, tolak bentrok), `Availability` (ketersediaan dari reservasi), `InvoiceToken` (HMAC-SHA256 dengan APP_KEY, hash SHA-256 disimpan), `InvoiceQr` (SVG, paket `bacon/bacon-qr-code`), `BookingException`.
+- Added: halaman admin Pengaturan (`/admin/pengaturan`), komponen `x-setting`, tes `BookingTest` (9), `SettingsTest` (4), `InvoiceTokenTest` (4).
+- Changed: checkout menyimpan pesanan nyata (hanya COD; QRIS dan VA ditandai Segera Hadir), invoice dari database (hanya pemilik atau admin; nomor lain 404), dashboard pelanggan dari pesanan nyata, ketersediaan dan katalog dari reservasi, durasi min/maks dari pengaturan, alamat dan jam pengambilan dari pengaturan (footer, ketentuan, invoice).
+- Perilaku yang perlu dikonfirmasi: pemindaian QR hanya menampilkan data; perubahan status pengambilan lewat satu tombol Konfirmasi (sesuai aturan "pemindaian tidak mengubah status otomatis"); layanan digital belum dapat dipesan; admin belum melihat pesanan nyata sampai 5C-2.
+- Belum diuji: seluruhnya. Wajib: `composer require bacon/bacon-qr-code`, `php artisan migrate`, `php artisan test`.
+- Masih data contoh: halaman admin (New Orders, pembayaran, pengambilan, pengembalian, pemeriksaan, denda, laporan, antrean).
+
+> Catatan: tanggal pada log teknis ini mengikuti jam sandbox (UTC). Untuk logbook gunakan WITA (UTC+8) pada `LOGBOOK_NOTES.md`.
+
+## 2026-11-12 — Aturan kerja baru, dokumentasi logbook, panduan deploy FTP
+- Pemilik menetapkan aturan kerja baru (tanya sebelum memutuskan, checklist setiap bagian, status pengujian jelas, dokumentasi untuk logbook) dan prioritas: backend sesuai logbook, scan invoice nyata, light/dark mode, pengujian, dokumentasi. Semuanya dicatat di `AGENTS.md` bagian H.
+- Pemilik mengirim screenshot spreadsheet logbook: M1 ide dan wawancara mitra, M2–M3 desain UI/UX, M4–M5 fitur utama + CRUD + database + SEO, M6 integrasi pihak ketiga + pengujian. Pemetaan minggu ke tanggal bersifat kesimpulan (belum terverifikasi); ditemukan tulisan "Kamis, 27 Oktober 2026" yang seharusnya Selasa.
+- Added: `docs/LOGBOOK_NOTES.md`, `docs/REPORT_NOTES.md`, `docs/SCREENSHOT_GUIDE.md`, `docs/DEPLOY_FTP.md`.
+- Changed: `README.md` (tautan dokumen), `AGENTS.md` (bagian H).
+- Status: dokumentasi ditulis; tidak ada perubahan kode. Pengerjaan 5C, scan invoice, dan light/dark mode **menunggu keputusan pemilik** (lihat pesan pengembangan).
+- Kendala: tidak ada akses ke riwayat Git dan tanggal pekerjaan pemilik di luar percakapan, sehingga beberapa entri logbook ditandai belum terverifikasi.
+
+## 2026-11-12 — Perbaikan: tes tidak dapat dimuat; APP_KEY hilang
+- Lingkungan pemilik: PHP 8.5.12, Laravel 13.40.0.
+- **`php artisan test` fatal error:** `AdminAccountTest::options()` private bentrok dengan `TestCase::options()` (helper request HTTP OPTIONS) → seluruh suite gagal dimuat. Diperbaiki: diganti `adminArgs()`. `SmokeTest::login()` diganti `masukSebagai()` sebagai pencegahan. Seluruh nama helper pada tes diperiksa terhadap daftar metode TestCase.
+- **`MissingAppKeyException` pada `GET /`:** `APP_KEY` kosong di `.env` pemilik (bukan bug kode). Perbaikan: `php artisan key:generate` lalu `php artisan config:clear`. Ditambahkan ke `docs/TROUBLESHOOTING.md` bersama penjelasan galat nama helper tes.
+- Peringatan `Module "openssl" is already loaded` masih muncul pada lingkungan pemilik (konfigurasi PHP, lihat TROUBLESHOOTING bagian 1); tidak menghentikan aplikasi.
+
+## 2026-11-12 — Foto produk dan perbaikan gaya kartu
+- Keputusan pemilik: tidak perlu Figma/user flow baru (Figma sudah ada di tahap awal); 5C tetap ditunda menunggu data mitra. Dikerjakan pekerjaan yang tidak bergantung pada mitra.
+- **Bug ditemukan dan diperbaiki:** gaya kartu produk (`.pit-product*`) hanya ada di `pages/home.css`, sehingga kartu di `/katalog` dan "Produk lainnya" pada halaman detail tampil tanpa gaya. Dipindah ke `pitlabs.css` (global). Tes: `test_gaya_kartu_produk_dimuat_di_katalog_dan_detail`.
+- Added: kolom `products.image_path` dan `image_alt` (migration `2026_11_12_100001`), unggah/ganti/hapus foto pada form produk admin, foto di kartu dan detail (lazy-load untuk kartu, `fetchpriority=high` untuk detail), `og:image`/`og:url`/`twitter:card` di layout, `public/uploads/` + `.htaccess` (tanpa eksekusi skrip), `.gitignore` untuk foto.
+- Keamanan unggahan: validasi `mimes:jpg,jpeg,png,webp` berdasarkan isi berkas (SVG dan berkas menyamar `.png` ditolak), maks. 2 MB, nama berkas UUID dengan ekstensi dari isi berkas, hapus berkas memakai `basename()` (anti path traversal), folder tanpa eksekusi skrip.
+- Tes baru: 5 (tiga di `AdminCatalogTest`, dua di `CatalogTest`). Unggahan tes memakai folder sementara.
+- Perlu dijalankan pemilik: `php artisan migrate` (migration baru) lalu `php artisan test`. Belum diuji oleh penulis (tanpa PHP).
+
 ## 2026-11-11 — Akun admin manual; 5C ditunda
 - Permintaan pemilik: akun admin tidak dibuat otomatis; dibuat manual. 5C ditunda sampai ada data dari mitra.
 - Removed: `UserSeeder` (membuat admin dan pelanggan contoh otomatis saat `migrate --seed`).

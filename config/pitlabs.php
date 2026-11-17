@@ -17,6 +17,12 @@ return [
     'description' => 'Sewa perangkat AI, IoT, dan teknologi untuk proyek, riset, dan pembelajaran. Ambil langsung di lokasi, pantau masa sewa dari dashboard.',
     'company'     => 'PT. Pulau Inovasi Teknologi',
 
+    // Unggahan foto produk. Disimpan langsung di public/ (tanpa symlink storage:link, yang bermasalah di Windows).
+    'uploads' => [
+        'products_dir' => public_path('uploads/products'),
+        'products_url' => 'uploads/products',
+    ],
+
     // Dipakai HANYA oleh AdminSeeder manual (php artisan db:seed --class=AdminSeeder). Nilai dari .env.
     'admin_seed'  => [
         'name'     => env('ADMIN_NAME', 'Admin PITLABS'),
@@ -83,6 +89,9 @@ return [
             ],
             'Laporan' => [
                 ['Laporan keuangan',        'admin.reports',       'bi-graph-up'],
+            ],
+            'Sistem' => [
+                ['Pengaturan',              'admin.settings',      'bi-sliders'],
             ],
         ],
         'user' => [

@@ -37,7 +37,7 @@ Pemilik telah mengizinkan backend **bertahap**, hanya untuk batch yang disetujui
 - `role`, `is_active`, `google_id` tidak mass-assignable; jangan diubah. Otorisasi di server (`auth` + `EnsureRole`), bukan hanya menyembunyikan menu.
 - Kata sandi/rahasia tidak boleh ditulis di kode atau commit (`.env` tidak di-commit); repository GitHub bersifat publik. Akun admin dibuat manual lewat `php artisan pitlabs:create-admin`; jangan menambahkan pembuatan akun otomatis ke seeder bawaan. Tambahkan tes untuk perilaku baru. Kelas tes yang menyentuh database wajib memakai `RefreshDatabase`; fixture dengan email sama dalam satu tes tidak boleh dibuat dua kali (kolom `users.email` unik dan tidak boleh dilonggarkan).
 - Perubahan skema lewat migration baru; jangan mengedit migration yang sudah dijalankan.
-- Data yang masih `Mock*`: katalog, ketersediaan, pesanan, pelanggan-antrean, laporan.
+- Sejak 5C-1: booking, reservasi, invoice, pembayaran awal, dan pengaturan memakai database. Masih `Mock*`: halaman admin (pesanan, pembayaran, pengambilan, pengembalian, pemeriksaan, denda, laporan), antrean, dan KPI dashboard admin (5C-2 dan 5E). Produk, unit, dan pesanan tidak boleh dihapus (hanya nonaktif/pensiun).
 
 ## F. Dokumentasi
 Setiap pekerjaan selesai: perbarui [docs/DEVELOPMENT_LOG.md](docs/DEVELOPMENT_LOG.md) (fase, file terdampak, status, yang masih simulasi) dan dokumen terkait. Jangan mengklaim "selesai" jika belum diuji.
@@ -50,3 +50,13 @@ Setiap pekerjaan selesai: perbarui [docs/DEVELOPMENT_LOG.md](docs/DEVELOPMENT_LO
 5. **Verifikasi dan dokumentasi:** periksa hasil, jalankan pemeriksaan relevan, pastikan tidak keluar ruang lingkup, perbarui log dan status fase.
 
 Jangan melewati langkah 2–3 karena merasa sudah paham proyek.
+
+## H. Aturan kerja dari pemilik (mengikat)
+1. **Jangan mengambil keputusan sepihak.** Bila instruksi kurang jelas, ada beberapa kemungkinan implementasi, informasi belum tersedia, ada konflik dengan fitur lama, perubahan database yang berdampak, ide tambahan, atau kendala yang mengubah pendekatan: **berhenti di bagian itu** dan jelaskan (a) masalahnya, (b) mengapa perlu keputusan, (c) pilihan, (d) kelebihan dan kekurangan tiap pilihan, (e) rekomendasi. Tunggu persetujuan; diam bukan persetujuan. Keputusan teknis kecil yang jelas tercakup dalam instruksi boleh diambil.
+2. **Setiap selesai satu bagian, wajib memberi `CHECKLIST HASIL PENGEMBANGAN`** (A fitur dikerjakan, B bagian yang perlu diperiksa pemilik, C perubahan teknis, D status pengujian, E hal yang butuh konfirmasi, F status keseluruhan) **dan panduan pemeriksaan langkah demi langkah** yang hanya mencakup pekerjaan baru dan bagian terdampak.
+3. **Jangan menganggap pekerjaan disetujui.** Koreksi pemilik diperbaiki tanpa mengubah bagian lain yang sudah sesuai; bila koreksi menimbulkan ketidakjelasan, tanyakan.
+4. **Komunikasi terbuka:** laporkan fitur belum selesai, bug, fungsi yang masih data contoh, bagian yang belum terhubung database, pengujian yang belum dilakukan, kendala, dan perubahan di luar instruksi. Jangan mengklaim berhasil bila belum.
+5. **Status yang dipakai:** Belum dikerjakan, Sedang dikerjakan, Sudah diimplementasikan, Sudah diuji, Perlu perbaikan. Bedakan "kode ditulis", "diimplementasikan", dan "diuji".
+6. **Pengiriman hasil:** kirim hanya file yang berubah atau baru beserta jalur tujuannya, bukan satu zip utuh.
+7. **Dokumentasi untuk logbook:** catat tiap bagian yang benar-benar selesai di `docs/DEVELOPMENT_LOG.md`, `docs/LOGBOOK_NOTES.md`, `docs/REPORT_NOTES.md`, `docs/SCREENSHOT_GUIDE.md`. Jangan mengarang tanggal atau kegiatan; tanggal logbook memakai WITA (log sandbox memakai UTC); yang tidak dapat dipastikan ditandai "belum terverifikasi". Target mingguan mengacu pada spreadsheet logbook pemilik dan tidak boleh diubah urutannya; pekerjaan yang mendahului jadwal dicatat sebagai "dipercepat".
+8. **Prioritas pemilik:** (1) backend sesuai target logbook, (2) scan invoice yang benar-benar berfungsi (kamera dan input manual, terhubung database, pemindaian tidak mengubah status transaksi otomatis), (3) light/dark mode di seluruh halaman dengan identitas dashboard tetap berbeda, (4) pengujian dan perbaikan bug, (5) dokumentasi.

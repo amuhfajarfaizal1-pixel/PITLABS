@@ -19,7 +19,7 @@
                     </select>
                     <div id="produk-error" class="invalid-feedback"></div>
                 </div>
-                <x-field name="mulai" label="Tanggal mulai" type="date" required :value="request('mulai')" :min="\App\Support\MockAvailability::today()->toDateString()" />
+                <x-field name="mulai" label="Tanggal mulai" type="date" required :value="request('mulai')" :min="\App\Support\Availability::today()->toDateString()" />
                 <div class="row g-3 mb-3">
                     <div class="col-6"><label for="durasi" class="form-label">Durasi</label><input id="durasi" name="durasi" type="number" min="1" max="90" required class="form-control" value="{{ request('durasi', 1) }}"><div id="durasi-error" class="invalid-feedback"></div></div>
                     <div class="col-6"><label for="satuan" class="form-label">Satuan</label>
@@ -31,11 +31,14 @@
 
         {{-- Langkah 2: unit, pembayaran, ketentuan --}}
         <x-dash.panel title="2. Unit, pembayaran, dan ketentuan">
-            @if ($units === null)
+            @if ($summary && $summary['product']['type'] === 'digital')
+                <x-alert type="info" title="Layanan digital">Layanan digital belum dapat dipesan lewat sistem ini. Alur aktivasi dan ketentuannya menunggu informasi dari mitra.</x-alert>
+            @elseif ($units === null)
                 <x-empty-state icon="bi-calendar-check" title="Pilih periode terlebih dahulu">Isi produk dan tanggal di atas, lalu tekan "Cek unit tersedia".</x-empty-state>
             @else
                 <form method="POST" action="{{ route('checkout.store') }}" data-pit-validate novalidate>
                     @csrf
+                    @error('booking')<x-alert type="danger" title="Pesanan belum dapat dibuat" class="mb-3">{{ $message }}</x-alert>@enderror
                     @foreach (['produk', 'mulai', 'durasi', 'satuan'] as $f)<input type="hidden" name="{{ $f }}" value="{{ request($f) }}">@endforeach
 
                     <fieldset class="mb-4">
@@ -51,9 +54,9 @@
 
                     <fieldset class="mb-4">
                         <legend class="form-label">Metode pembayaran <span class="pit-required" aria-hidden="true">*</span></legend>
-                        <div class="form-check"><input class="form-check-input" type="radio" name="metode" id="m-qris" value="QRIS" required><label class="form-check-label" for="m-qris">QRIS</label></div>
-                        <div class="form-check"><input class="form-check-input" type="radio" name="metode" id="m-va" value="VA"><label class="form-check-label" for="m-va">Virtual account</label></div>
-                        <div class="form-check"><input class="form-check-input" type="radio" name="metode" id="m-cod" value="COD"><label class="form-check-label" for="m-cod">COD, bayar saat pengambilan</label></div>
+                        <div class="form-check"><input class="form-check-input" type="radio" name="metode" id="m-qris" value="QRIS" disabled><label class="form-check-label text-muted-pit" for="m-qris">QRIS <span class="pit-tag-soon">Segera Hadir</span></label></div>
+                        <div class="form-check"><input class="form-check-input" type="radio" name="metode" id="m-va" value="VA" disabled><label class="form-check-label text-muted-pit" for="m-va">Virtual account <span class="pit-tag-soon">Segera Hadir</span></label></div>
+                        <div class="form-check"><input class="form-check-input" type="radio" name="metode" id="m-cod" value="COD" checked required><label class="form-check-label" for="m-cod">COD, bayar saat pengambilan di lokasi admin</label></div>
                         @error('metode')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                     </fieldset>
 
@@ -61,7 +64,7 @@
                     @error('terms_accepted')<div class="text-danger small mb-3">{{ $message }}</div>@enderror
 
                     <button type="submit" class="btn btn-primary" data-pit-loading-submit>Buat pesanan</button>
-                    <p class="small text-muted-pit mt-3 mb-0">Simulasi: pesanan tidak disimpan dan pembayaran belum diproses.</p>
+                    <p class="small text-muted-pit mt-3 mb-0">Pesanan disimpan ke database. Pembayaran COD dikonfirmasi admin setelah uang diterima.</p>
                 </form>
             @endif
         </x-dash.panel>
@@ -80,7 +83,7 @@
         @else
             <p class="text-muted-pit mb-3">Ringkasan muncul setelah periode dipilih.</p>
         @endif
-        <p class="small mb-0"><i class="bi bi-geo-alt" aria-hidden="true"></i> Pengambilan di lokasi admin. Tidak ada pengiriman kurir. Lokasi: <x-pending field="terms.pickup_address" /></p>
+        <p class="small mb-0"><i class="bi bi-geo-alt" aria-hidden="true"></i> Pengambilan di lokasi admin. Tidak ada pengiriman kurir. Lokasi: <x-setting key="contact.pickup_address" field="terms.pickup_address" /></p>
     </x-dash.panel>
 </div>
 @endsection

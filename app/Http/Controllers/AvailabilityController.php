@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\MockAvailability;
+use App\Support\Availability;
 use App\Support\Catalog;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ class AvailabilityController extends Controller
     {
         $products = Catalog::all();
         $slugs = array_column($products, 'slug');
-        $today = MockAvailability::today();
+        $today = Availability::today();
 
         $result = null;
         $errors = null;
@@ -24,7 +24,7 @@ class AvailabilityController extends Controller
             $validator = Validator::make($request->query(), [
                 'produk' => ['required', 'in:'.implode(',', $slugs)],
                 'mulai'  => ['required', 'date_format:Y-m-d', function ($attr, $value, $fail) use ($today) {
-                    $d = CarbonImmutable::createFromFormat('Y-m-d', $value, MockAvailability::TZ);
+                    $d = CarbonImmutable::createFromFormat('Y-m-d', $value, Availability::TZ);
                     if ($d && $d->startOfDay() < $today) {
                         $fail('Tanggal mulai tidak boleh sebelum hari ini.');
                     }
@@ -61,7 +61,7 @@ class AvailabilityController extends Controller
     private function compute(Request $request, CarbonImmutable $today): array
     {
         $product = Catalog::find($request->query('produk'));
-        $start = CarbonImmutable::createFromFormat('Y-m-d', $request->query('mulai'), MockAvailability::TZ)->startOfDay();
+        $start = CarbonImmutable::createFromFormat('Y-m-d', $request->query('mulai'), Availability::TZ)->startOfDay();
         $n = (int) $request->query('durasi');
 
         $end = match ($request->query('satuan')) {
@@ -71,7 +71,7 @@ class AvailabilityController extends Controller
         };
 
         $fmt = fn (CarbonImmutable $d) => $d->locale('id')->translatedFormat('j F Y');
-        $units = MockAvailability::check($product['slug'], $start, $end);
+        $units = Availability::check($product['slug'], $start, $end);
 
         if ($units !== null) {
             foreach ($units as &$u) {

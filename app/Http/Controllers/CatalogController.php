@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\MockAvailability;
+use App\Support\Availability;
 use App\Support\Catalog;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -35,7 +35,7 @@ class CatalogController extends Controller
 
         return view('catalog.show', [
             'product' => $product,
-            'units'   => MockAvailability::unitsFor($slug),
+            'units'   => Availability::unitsFor($slug),
             'related' => $related,
         ]);
     }

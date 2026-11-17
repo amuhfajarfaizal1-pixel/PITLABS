@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\AdminSettingsController;
 use App\Http\Controllers\AdminUnitController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AvailabilityController;
@@ -79,6 +80,9 @@ Route::middleware(['auth', EnsureRole::class.':admin'])->prefix('admin')->name('
     Route::get('/produk/{product}/ubah', [AdminProductController::class, 'edit'])->name('products.edit');
     Route::put('/produk/{product}', [AdminProductController::class, 'update'])->name('products.update');
     Route::post('/produk/{product}/status', [AdminProductController::class, 'toggle'])->name('products.toggle');
+
+    Route::get('/pengaturan', [AdminSettingsController::class, 'show'])->name('settings');
+    Route::put('/pengaturan', [AdminSettingsController::class, 'update'])->name('settings.update');
 
     Route::get('/inventaris', [AdminUnitController::class, 'index'])->name('inventory');
     Route::get('/inventaris/baru', [AdminUnitController::class, 'create'])->name('units.create');

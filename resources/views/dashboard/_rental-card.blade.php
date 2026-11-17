@@ -15,6 +15,8 @@
             <span class="{{ $o['rental'] === 'OVERDUE' ? 'text-danger fw-semibold' : 'text-muted-pit' }}">{{ $o['due_label'] }}</span>
         </div>
         <div class="dash-progress" role="progressbar" aria-label="Progres masa sewa {{ $o['product'] }}" aria-valuenow="{{ $o['progress'] }}" aria-valuemin="0" aria-valuemax="100"><span style="width: {{ $o['progress'] }}%"></span></div>
+    @elseif ($o['payment'] === 'UNPAID' && $o['order'] !== 'CANCELLED')
+        <x-alert type="warning">Menunggu pembayaran. Untuk COD, bayar saat pengambilan di lokasi admin; admin mengonfirmasi setelah uang diterima.</x-alert>
     @elseif ($o['payment'] === 'PAID' && $o['pickup'] === 'NOT_PICKED_UP')
         <x-alert type="info">Siap diambil di lokasi admin. Tunjukkan QR pada invoice. Pembayaran berhasil tidak berarti barang sudah diambil.</x-alert>
     @endif

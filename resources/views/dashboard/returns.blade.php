@@ -10,7 +10,7 @@
     <x-dash.panel title="Cara mengembalikan">
         <ol class="pit-steps" style="grid-template-columns: 1fr">
             <li class="pit-step"><span class="pit-step__num" aria-hidden="true">1</span><h3 class="pit-step__title">Kembalikan sebelum batas waktu</h3><p>Lihat batas sewa pada penyewaan aktif Anda. Keterlambatan dikenai ketentuan mitra.</p></li>
-            <li class="pit-step"><span class="pit-step__num" aria-hidden="true">2</span><h3 class="pit-step__title">Datang ke lokasi admin</h3><p>Lokasi dan jam operasional: <x-pending field="terms.pickup_address" /></p></li>
+            <li class="pit-step"><span class="pit-step__num" aria-hidden="true">2</span><h3 class="pit-step__title">Datang ke lokasi admin</h3><p>Lokasi dan jam operasional: <x-setting key="contact.pickup_address" field="terms.pickup_address" /></p></li>
             <li class="pit-step"><span class="pit-step__num" aria-hidden="true">3</span><h3 class="pit-step__title">Serahkan perangkat lengkap</h3><p>Bawa seluruh kelengkapan yang diterima saat pengambilan.</p></li>
             <li class="pit-step"><span class="pit-step__num" aria-hidden="true">4</span><h3 class="pit-step__title">Pemeriksaan oleh admin</h3><p>Status berubah menjadi "Dalam pemeriksaan". Jika tidak ada masalah, sewa selesai.</p></li>
         </ol>
