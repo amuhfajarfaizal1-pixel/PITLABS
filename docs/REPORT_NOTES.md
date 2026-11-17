@@ -32,6 +32,15 @@ Bahan mentah untuk dua laporan mingguan dan laporan akhir. Isi hanya fakta yang 
 6. **Status pencapaian target:** tercapai sebagian. Database, autentikasi, CRUD produk/unit, dan SEO dasar sudah diimplementasikan; fitur transaksi belum.
 7. **Rencana berikutnya:** lihat Minggu ke-5 pada `LOGBOOK_NOTES.md`.
 
+
+## Bahan laporan minggu ke-5 (17 November 2026; implementasi source, belum uji integrasi)
+
+Kegiatan pengembangan yang tercatat: rekonsiliasi skema rental untuk menangani tabel transaksi yang hilang; implementasi backend operasional pembayaran COD, verifikasi QR invoice ke database, pengambilan, pengembalian, pemeriksaan kondisi, pencatatan denda manual, antrean rental, dashboard dan laporan berbasis transaksi database; proteksi halaman detail produk agar pengguna masuk terlebih dahulu; serta tema light/dark pada halaman publik dan dashboard.
+
+Hasil source: transaksi operasional tidak lagi mengambil angka dari data contoh pada controller/view yang dialihkan. Seeder bawaan hanya menjalankan kategori dasar dan tidak membuat produk, unit, pelanggan, maupun transaksi contoh. Pemindaian QR memvalidasi payload dan token terhadap invoice pada database, tetapi perubahan status pengambilan tetap memerlukan konfirmasi admin.
+
+Batasan dan status: implementasi belum diuji end-to-end karena paket sumber yang diperiksa bukan instalasi Laravel lengkap. `php artisan migrate`, `php artisan test`, dan uji kamera lintas-browser harus dilakukan pada proyek lengkap. COD menjadi satu-satunya metode yang diverifikasi manual. QRIS/VA/webhook belum tersedia tanpa provider dan kredensial. Nominal denda tidak dihitung otomatis karena kebijakan mitra belum tersedia. Jangan menulis klaim sistem berjalan/teruji sebelum bukti uji tersedia.
+
 ## Laporan minggu depan (Minggu ke-5)
 Struktur sama dengan tujuh bagian di atas. Isi hanya setelah pekerjaan dilakukan dan diuji.
 

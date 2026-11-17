@@ -13,22 +13,32 @@ class AdminAccountTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function options(array $over = []): array
+    private function adminArgs(array $over = []): array
     {
         return $over + ['--name' => 'Admin Uji', '--email' => 'Admin@Contoh.Test', '--password' => 'kata-sandi-aman-123'];
     }
 
     public function test_seed_bawaan_tidak_membuat_akun_pengguna(): void
     {
-        $this->seed(); // DatabaseSeeder: kategori, produk, unit
+        $this->seed(); // DatabaseSeeder hanya kategori taksonomi dasar
 
         $this->assertDatabaseCount('users', 0);
-        $this->assertDatabaseCount('products', 7);
+        $this->assertDatabaseCount('products', 0);
+        $this->assertDatabaseCount('inventory_units', 0);
+    }
+
+    public function test_seeder_contoh_lama_tidak_membuat_produk_unit_atau_pengguna(): void
+    {
+        $this->seed([\Database\Seeders\ProductSeeder::class, \Database\Seeders\InventoryUnitSeeder::class, \Database\Seeders\UserSeeder::class]);
+
+        $this->assertDatabaseCount('products', 0);
+        $this->assertDatabaseCount('inventory_units', 0);
+        $this->assertDatabaseCount('users', 0);
     }
 
     public function test_perintah_membuat_admin_aktif_dengan_kata_sandi_ter_hash(): void
     {
-        $this->artisan('pitlabs:create-admin', $this->options())->assertExitCode(0);
+        $this->artisan('pitlabs:create-admin', $this->adminArgs())->assertExitCode(0);
 
         $user = User::where('email', 'admin@contoh.test')->firstOrFail(); // email dinormalkan ke huruf kecil
         $this->assertSame('ADMIN', $user->role);
@@ -38,20 +48,20 @@ class AdminAccountTest extends TestCase
 
     public function test_perintah_menolak_kata_sandi_pendek_dan_email_tidak_valid(): void
     {
-        $this->artisan('pitlabs:create-admin', $this->options(['--password' => 'pendek']))->assertExitCode(1);
-        $this->artisan('pitlabs:create-admin', $this->options(['--email' => 'bukan-email']))->assertExitCode(1);
+        $this->artisan('pitlabs:create-admin', $this->adminArgs(['--password' => 'pendek']))->assertExitCode(1);
+        $this->artisan('pitlabs:create-admin', $this->adminArgs(['--email' => 'bukan-email']))->assertExitCode(1);
 
         $this->assertDatabaseCount('users', 0);
     }
 
     public function test_email_ganda_ditolak_kecuali_reset_dan_reset_mengganti_kata_sandi(): void
     {
-        $this->artisan('pitlabs:create-admin', $this->options())->assertExitCode(0);
+        $this->artisan('pitlabs:create-admin', $this->adminArgs())->assertExitCode(0);
 
-        $this->artisan('pitlabs:create-admin', $this->options(['--password' => 'kata-sandi-baru-456']))->assertExitCode(1);
+        $this->artisan('pitlabs:create-admin', $this->adminArgs(['--password' => 'kata-sandi-baru-456']))->assertExitCode(1);
         $this->assertTrue(Hash::check('kata-sandi-aman-123', User::firstOrFail()->password));
 
-        $this->artisan('pitlabs:create-admin', $this->options(['--password' => 'kata-sandi-baru-456', '--reset' => true]))->assertExitCode(0);
+        $this->artisan('pitlabs:create-admin', $this->adminArgs(['--password' => 'kata-sandi-baru-456', '--reset' => true]))->assertExitCode(0);
         $user = User::firstOrFail();
         $this->assertTrue(Hash::check('kata-sandi-baru-456', $user->password));
         $this->assertFalse(Hash::check('kata-sandi-aman-123', $user->password));
@@ -62,10 +72,10 @@ class AdminAccountTest extends TestCase
     {
         User::unguarded(fn () => User::create(['name' => 'Pelanggan', 'email' => 'admin@contoh.test', 'password' => 'kata-sandi-aman-123', 'role' => 'CUSTOMER', 'is_active' => true]));
 
-        $this->artisan('pitlabs:create-admin', $this->options(['--reset' => true]))->assertExitCode(1);
+        $this->artisan('pitlabs:create-admin', $this->adminArgs(['--reset' => true]))->assertExitCode(1);
         $this->assertSame('CUSTOMER', User::firstOrFail()->role);
 
-        $this->artisan('pitlabs:create-admin', $this->options(['--reset' => true, '--promote' => true]))->assertExitCode(0);
+        $this->artisan('pitlabs:create-admin', $this->adminArgs(['--reset' => true, '--promote' => true]))->assertExitCode(0);
         $this->assertSame('ADMIN', User::firstOrFail()->role);
     }
 

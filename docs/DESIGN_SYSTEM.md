@@ -107,3 +107,11 @@ Komponen dashboard: `x-dash.page-header`, `stat`, `panel`, `table` (cari, filter
 
 ## 11. Hero homepage
 Satu kolom, rata tengah: eyebrow, headline, deskripsi, dua tombol, lalu tiga poin kepercayaan dalam satu baris (menumpuk di layar kecil). Gradien dan pola grid hanya dipakai di hero. Tidak ada kartu ilustrasi di hero.
+
+
+## 12. Light / dark mode (source 17 November 2026)
+
+- Layout publik dan dashboard memiliki tombol tema yang dapat dipakai pengguna.
+- Bila pengguna belum pernah memilih tema, aplikasi mengikuti `prefers-color-scheme` perangkat; pilihan manual disimpan pada `localStorage` (`pitlabs-theme`).
+- Mode gelap mengubah permukaan dan warna netral; identitas Sapphire pelanggan dan Navy × Yellow admin tetap dipertahankan.
+- Tema diterapkan melalui `public/assets/css/theme-dark.css` dan `public/assets/js/theme.js`. Uji seluruh halaman, modal, form, tabel, dropdown, invoice, scanner, dan tampilan responsif sebelum dinyatakan tervalidasi.

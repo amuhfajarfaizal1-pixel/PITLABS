@@ -100,7 +100,7 @@ Untuk produk yang tersedia untuk dibeli, halaman detail dapat mengarahkan penggu
 </table>
 
 > [!IMPORTANT]
-> **Current implementation status:** PITLABS berada pada **Fase 5B**: database MySQL, **autentikasi sungguhan** (registrasi, login, logout, peran *CUSTOMER*/*ADMIN*, profil, ganti kata sandi, pengelolaan akun pelanggan), serta **katalog dari database dengan CRUD produk dan unit oleh admin** sudah diimplementasikan. Perhitungan ketersediaan per tanggal, pesanan, checkout, antrean, invoice, dan laporan **masih memakai data contoh atau simulasi**. Login Google serta pembayaran nyata belum diimplementasikan.
+> **Status source terbaru (17 November 2026):** fondasi 5A–5B dan booking/checkout/invoice 5C-1 telah tersedia. Source juga memuat implementasi backend operasional admin (verifikasi COD, QR scanner, pengambilan, pengembalian, inspeksi, pencatatan denda, antrean), dashboard/laporan database, login wajib untuk detail produk, dan light/dark mode. Implementasi operasional terbaru **belum diuji end-to-end pada instalasi Laravel lengkap**. Pembayaran online QRIS/VA, webhook gateway, tarif/denda baku yang disahkan mitra, notifikasi WhatsApp/email, dan penjualan Shopee terintegrasi belum tersedia. Produk, unit, pelanggan, dan transaksi tidak diisi dengan data contoh otomatis.
 
 ## 🧰 Tech Stack
 
@@ -156,7 +156,17 @@ Salin isi source PITLABS ke direktori utama proyek Laravel yang baru dibuat dan 
 
 > **Memperbarui dari paket Fase 4 (simulasi)?** Hapus file lama `app/Support/DemoAuth.php` dan `app/Http/Middleware/DemoRole.php`. Keduanya sudah digantikan autentikasi Laravel.
 
-### 3. Create the database
+### 3. Install the QR renderer
+
+Di root instalasi Laravel lengkap, jalankan:
+
+```bash
+composer require bacon/bacon-qr-code
+```
+
+Paket ini digunakan untuk menghasilkan SVG QR pada invoice. Scanner menerima QR bertanda tangan dan juga menyediakan input nomor invoice secara manual.
+
+### 4. Create the database
 
 Jalankan **MySQL** melalui XAMPP Control Panel (Apache tidak wajib), lalu buka phpMyAdmin dan buat database:
 
@@ -165,7 +175,7 @@ Jalankan **MySQL** melalui XAMPP Control Panel (Apache tidak wajib), lalu buka p
 | Database name | `pitlabs` |
 | Collation | `utf8mb4_unicode_ci` |
 
-### 4. Configure environment
+### 5. Configure environment
 
 Buat file `.env` dari template hanya jika belum tersedia, lalu buat application key:
 
@@ -197,15 +207,15 @@ DB_PASSWORD=
 
 > File `.env` berisi konfigurasi lokal dan rahasia. Jangan melakukan commit file ini ke repository.
 
-### 5. Migrate and seed the database
+### 6. Migrate and seed the database
 
 ```bash
 php artisan migrate --seed
 ```
 
-Perintah ini membuat tabel `users`, `categories`, `products`, dan `inventory_units`, lalu mengisi 2 kategori, 7 produk resmi (tanpa harga dan spesifikasi; admin melengkapinya dari menu **Produk**), dan 15 unit contoh. **Tidak ada akun pengguna yang dibuat otomatis.**
+Perintah ini menjalankan seluruh migration dan hanya mengisi kategori taksonomi dasar. Produk, unit, pelanggan, transaksi, dan akun admin tidak dibuat otomatis. Admin memasukkan produk serta unit berdasarkan data resmi mitra. Pastikan MySQL aktif dan `.env` menunjuk database yang sama dengan database yang dibuka di phpMyAdmin.
 
-### 6. Create the admin account (manual)
+### 7. Create the admin account (manual)
 
 Akun admin dibuat secara manual, tidak otomatis. Cara yang disarankan:
 
@@ -232,7 +242,7 @@ Alternatif lewat `.env`: isi `ADMIN_NAME`, `ADMIN_EMAIL`, dan `ADMIN_PASSWORD`, 
 
 Pelanggan biasa cukup mendaftar di `/daftar`.
 
-### 7. Run the application
+### 8. Run the application
 
 ```bash
 php artisan optimize:clear
@@ -288,91 +298,60 @@ Admin mengunggah foto dari **Admin → Produk → Ubah** (JPG, PNG, atau WebP, m
 
 ```text
 app/
-├── Http/
-│   ├── Controllers/       # Publik, katalog, ketersediaan, auth, pelanggan, dan admin (produk, unit)
-│   ├── Requests/          # Validasi form produk dan unit
-│   └── Middleware/        # EnsureRole: otorisasi berdasarkan peran
-├── Models/                # User, Category, Product, InventoryUnit
-└── Support/               # Helper (Pit), Catalog (katalog dari database), serta data contoh (MockAvailability, MockData)
+├── Http/Controllers/       # Publik, katalog, auth, pelanggan, admin dan operasional rental
+├── Models/                 # User, katalog, rental order, invoice, payment, inspeksi, denda, antrean
+└── Support/                # Ketersediaan, booking, token/QR invoice dan helper aplikasi
 
-config/
-└── pitlabs.php            # Konfigurasi identitas, navigasi, dan label status
-
+config/                     # Identitas, navigasi, status dan konfigurasi PITLABS
 database/
-├── migrations/            # Skema: users, categories, products, inventory_units
-└── seeders/               # Kategori, produk resmi, unit contoh, dan akun awal
+├── migrations/             # Skema akun, katalog, inventaris, booking dan operasional
+└── seeders/                # Kategori dasar; seeders produk/unit/pengguna contoh dinonaktifkan
+resources/views/            # Layout, komponen, halaman publik, admin dan pelanggan
+public/assets/              # CSS, JavaScript, logo dan aset frontend
+tests/Feature/               # Pengujian autentikasi, katalog, booking dan operasional
 
-resources/
-└── views/
-    ├── layouts/
-    ├── partials/
-    ├── components/
-    ├── pages/
-    ├── catalog/
-    ├── auth/
-    ├── admin/
-    └── dashboard/
-
-public/
-└── assets/
-    ├── css/               # Stylesheet aplikasi
-    └── js/                # JavaScript aplikasi
-
-tests/
-└── Feature/               # Pengujian autentikasi, katalog, CRUD admin, dan uji asap halaman
-
-docs/                      # Dokumentasi proyek
+docs/                       # Dokumentasi, roadmap, logbook, bukti dan panduan deployment
 ```
 
 ## 🏗️ Application Flow
 
 ```text
-              Browser
-                 │
-                 ▼
-          Laravel Routes
-                 │
-        ┌────────┴─────────┐
-        │ auth + EnsureRole│   ← peran CUSTOMER / ADMIN
-        └────────┬─────────┘
-                 ▼
-            Controllers
-        ┌────────┴──────────────┐
-        ▼                       ▼
- Eloquent · MySQL         Mock Data Layer
- (users, categories,      (jadwal booking, pesanan,
-  products, units)         antrean, laporan)
-        └────────┬──────────────┘
-                 ▼
-            Blade Views
-                 │
-                 ▼
-      Bootstrap · CSS · JS
+Browser
+  │
+  ▼
+Laravel Routes + Middleware (auth / EnsureRole)
+  │
+  ▼
+Controllers + Services
+  │
+  ├── Eloquent Models ── MySQL (akun, katalog, stok, pesanan, pembayaran, audit)
+  │
+  └── Validation / business rules / status transitions
+  │
+  ▼
+Blade Views + Bootstrap + CSS + JavaScript
 ```
 
-Autentikasi dan data akun sudah memakai database. Fitur lain masih memakai lapisan data contoh (`app/Support`) agar alur antarmuka dapat dicoba. Pada tahap berikutnya, lapisan tersebut digantikan secara bertahap oleh model dan database tanpa mengubah tampilan.
+Semua halaman operasional yang termasuk dalam implementasi terbaru mengambil data dari database. Kelas `Mock*` lama masih dapat berada di source untuk kompatibilitas bagian frontend yang belum dipensiunkan, tetapi halaman yang dialihkan pada batch 17 November tidak lagi memakai data mock. Seeder bawaan hanya menambahkan kategori dasar; seeder legacy ProductSeeder, InventoryUnitSeeder, dan UserSeeder juga dinonaktifkan agar tidak membuat produk, unit, atau akun contoh.
 
 ## 📈 Development Status
 
-| Development Area | Status |
-|---|:---:|
-| Analisis kebutuhan dan perancangan | ✅ Completed |
-| Design system dan homepage | ✅ Completed |
-| Halaman publik | ✅ UI available |
-| Dashboard pelanggan | 🟡 UI available · Mock data (profil memakai database) |
-| Dashboard administrator | 🟡 UI available · Mock data (akun pelanggan memakai database) |
-| Database dasar (users, categories, products, inventory_units) | ✅ Migration & seeder available |
-| Autentikasi, peran, dan otorisasi | ✅ Implemented · Menunggu pengujian tim |
-| Katalog dari database dan CRUD produk/unit | ✅ Implemented · Menunggu pengujian tim |
-| Dashboard admin: tema Navy × Yellow | ✅ Applied |
-| Pengujian otomatis (auth, katalog, CRUD, uji asap) | 🟡 Tests written · Dijalankan oleh tim |
-| Ketersediaan dan booking dari database | ⬜ Next |
-| Login Google (OAuth) | ⬜ Planned |
-| Booking, checkout, dan pembayaran nyata | ⬜ Planned |
-| Pengambilan, pengembalian, denda, dan laporan nyata | ⬜ Planned |
-| Pengujian menyeluruh dan keamanan | ⬜ Not completed |
+| Area | Status source | Verifikasi |
+|---|---|---|
+| Analisis, design system, halaman publik | Diimplementasikan | Sebagian telah diuji pada batch sebelumnya |
+| Autentikasi, role, profil, pelanggan admin | Diimplementasikan | Gunakan suite tes proyek penuh |
+| Katalog database, CRUD produk/unit, upload foto | Diimplementasikan | Perlu regresi bersama batch baru |
+| Booking, reservasi, invoice dan COD checkout | Diimplementasikan | Perlu uji integrasi MySQL |
+| QR scanner kamera dan input manual | Diimplementasikan | Kamera bergantung HTTPS/localhost dan dukungan `BarcodeDetector`; belum diuji lintas-browser |
+| Verifikasi COD, pengambilan, pengembalian | Diimplementasikan | Perlu uji alur fisik dan integrasi |
+| Pemeriksaan, bukti privat, denda manual | Diimplementasikan | Nilai denda tetap mengikuti keputusan/policy mitra |
+| Antrean rental | Diimplementasikan | Notifikasi eksternal belum otomatis |
+| Dashboard admin dan laporan | Diimplementasikan dari transaksi DB | Perlu rekonsiliasi hasil dengan transaksi uji nyata |
+| Light/dark mode | Diimplementasikan pada layout publik/dashboard | Perlu uji visual seluruh halaman/responsif |
+| QRIS/VA, webhook, Google OAuth | Belum tersedia | Memerlukan provider, kredensial, dan keputusan pemilik |
+| Pengujian menyeluruh dan keamanan produksi | Belum selesai | Wajib sebelum deployment |
 
-Status ini menggambarkan kondisi pengembangan saat README diperbarui dan dapat berubah seiring pengembangan PITLABS.
+**Catatan verifikasi:** arsip source yang menjadi dasar patch tidak menyertakan `artisan`, `composer.json`, `composer.lock`, `bootstrap/`, `.env`, atau `vendor/`. Karena itu `php artisan migrate`, Blade compilation, dan PHPUnit tidak dijalankan saat penyusunan patch. Status “diimplementasikan” berarti source ditulis; bukan berarti sudah lulus uji integrasi.
 
 ## 📚 Documentation
 

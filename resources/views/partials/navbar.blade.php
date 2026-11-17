@@ -64,12 +64,14 @@
                     @endforeach
                 </ul>
 
+                <button type="button" class="btn btn-outline-primary ms-lg-2" data-theme-toggle aria-label="Aktifkan tema gelap" title="Ganti tema"><i class="bi bi-moon-stars" aria-hidden="true"></i><span class="visually-hidden">Ganti tema</span></button>
+
                 @auth
-                    @php $demoUser = ['name' => auth()->user()->name]; @endphp
+                    @php $navUser = ['name' => auth()->user()->name]; @endphp
                     <div class="dropdown">
                         <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle" aria-hidden="true"></i>
-                            <span class="text-truncate" style="max-width: 11rem">{{ \Illuminate\Support\Str::limit($demoUser['name'], 22) }}</span>
+                            <span class="text-truncate" style="max-width: 11rem">{{ \Illuminate\Support\Str::limit($navUser['name'], 22) }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-lg-end">
                             <li>

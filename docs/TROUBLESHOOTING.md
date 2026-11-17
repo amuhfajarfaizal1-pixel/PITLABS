@@ -41,3 +41,15 @@ Fixture tes membuat dua pengguna dengan email yang sama dalam satu tes. Constrai
 
 ## 4. `Could not find driver` saat tes
 Aktifkan `extension=pdo_sqlite` (dan `sqlite3`) di `php.ini` yang dibaca PHP, lalu buka terminal baru.
+
+
+## Tabel rental tidak terlihat walaupun `php artisan migrate` pernah dijalankan
+
+1. Jalankan MySQL di XAMPP dan pastikan statusnya Running.
+2. Buka `.env` dan pastikan `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` sama dengan database yang dipilih di phpMyAdmin.
+3. Jalankan `php artisan config:clear` agar konfigurasi lama tidak tertahan.
+4. Jalankan `php artisan migrate:status`. Periksa migration 5C-1 dan migration rekonsiliasi `2026_11_17_100001_reconcile_rental_core_tables`.
+5. Jalankan `php artisan migrate` (jangan `migrate:fresh`). Migration rekonsiliasi hanya membuat tabel inti yang hilang; tidak menghapus tabel yang sudah ada.
+6. Pilih database yang sama di phpMyAdmin dan periksa tabel `settings`, `rental_orders`, `rental_order_items`, `reservations`, `invoices`, `payments`, dan `audit_logs`.
+
+Jika status migrasi `Ran` tetapi tabel tetap tidak ada setelah langkah di atas, simpan output terminal dan error log Laravel untuk diagnosis berikutnya. Jangan menghapus isi tabel `migrations` secara manual.

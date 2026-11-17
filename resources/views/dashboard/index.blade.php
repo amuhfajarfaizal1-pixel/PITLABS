@@ -24,14 +24,13 @@
         @endforelse
     </div>
 
-    <x-dash.panel title="Pengingat" subtitle="Contoh pengingat di dashboard" flush>
+    <x-dash.panel title="Pengingat" subtitle="Pengingat berdasarkan aktivitas akun" flush>
         <ul class="dash-list">
-            @foreach ($reminders as $n)
-                <li class="dash-list__item">
-                    <span class="dash-notif__icon dash-notif__icon--{{ $n['tone'] }}"><i class="bi {{ $n['icon'] }}" aria-hidden="true"></i></span>
-                    <div class="dash-list__main"><strong>{{ $n['title'] }}</strong><small>{{ $n['text'] }}</small></div>
-                </li>
-            @endforeach
+            @forelse ($reminders as $n)
+                <li class="dash-list__item"><span class="dash-notif__icon dash-notif__icon--{{ $n['tone'] }}"><i class="bi {{ $n['icon'] }}" aria-hidden="true"></i></span><div class="dash-list__main"><strong>{{ $n['title'] }}</strong><small>{{ $n['text'] }}</small></div></li>
+            @empty
+                <li class="dash-list__item text-muted-pit">Belum ada pengingat baru.</li>
+            @endforelse
         </ul>
     </x-dash.panel>
 </div>

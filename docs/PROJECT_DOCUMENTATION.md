@@ -6,7 +6,7 @@ Pedoman untuk developer dan AI agent. Baca bersama [../README.md](../README.md),
 - **Apa:** platform web penyewaan perangkat AI, IoT, dan teknologi. Dua jalur: **sewa** (diproses internal) dan **beli via Shopee** (diselesaikan di Shopee).
 - **Masalah:** pemesanan manual lewat chat lambat dan rawan keliru; ketersediaan, pembayaran, pengambilan, dan denda tidak tercatat rapi.
 - **Pengguna:** pelanggan (mahasiswa, peneliti, pembuat proyek) dan admin mitra.
-- **Alur sewa:** pilih produk → cek ketersediaan → login → pilih unit dan metode (QRIS/VA/COD) → setujui ketentuan → pesanan dan invoice (QR) terbit → bayar → ambil di lokasi admin (scan QR) → kembalikan → admin memeriksa kondisi → selesai atau denda.
+- **Alur sewa pada source saat ini:** katalog → login sebelum detail/checkout → cek ketersediaan dan pilih unit → setujui ketentuan → pesanan dan invoice ber-QR terbit → pembayaran COD dikonfirmasi admin → scanner memvalidasi invoice → admin mengonfirmasi serah-terima → pelanggan mengembalikan → admin memeriksa kondisi → selesai atau catatan denda manual. QRIS/VA belum aktif.
 
 ## B. Riwayat pengembangan
 - **Awal:** prototipe statis HTML/CSS lalu prototipe **PHP native + MySQL (XAMPP)**: router `?page=`, 7 tabel, data produk dari database. Desain dasar (hero navy, kartu produk, tab admin) berasal dari sini.
@@ -14,7 +14,7 @@ Pedoman untuk developer dan AI agent. Baca bersama [../README.md](../README.md),
 - **Fase 1** analisis referensi dan keputusan stack · **Fase 2** design system · **Fase 3** homepage · **Fase 4** katalog, detail, ketersediaan, auth (UI), dashboard pelanggan dan admin, checkout, invoice, halaman informasi, antrean rental.
 - **Perbaikan UI (Fase 5):** kartu ilustrasi di hero homepage dihapus (hero satu kolom); tema admin diganti Navy × Yellow dan diterapkan ke seluruh halaman admin; tes diperbaiki (isolasi database, fixture unik).
 - **Fase 5A** database (MySQL) + autentikasi sungguhan: migration, model, seeder, Laravel Auth, role, throttle, profil, ganti kata sandi, daftar pelanggan admin, tes autentikasi.
-- **Belum:** Fase 5B dst. dan Fase 6–7. Kronologi rinci dan file terdampak: [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md).
+- **Status source terbaru:** 5A–5B dan 5C-1 telah tersedia; implementasi 5C-2 (pembayaran COD, QR scanner, pengambilan, pengembalian, inspeksi, denda, antrean), 5E (dashboard/laporan DB), dan tema light/dark telah ditambahkan pada source 17 November 2026. Semua perubahan 5C-2 masih menunggu uji integrasi pada instalasi Laravel lengkap. Kronologi: [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md).
 
 ## C. Stack dan fungsi
 | Teknologi | Fungsi |
@@ -23,19 +23,19 @@ Pedoman untuk developer dan AI agent. Baca bersama [../README.md](../README.md),
 | Blade | Template dan komponen (`<x-...>`) |
 | Bootstrap 5.3.3 (CDN) | Grid, utilitas, komponen dasar (modal, dropdown, offcanvas, accordion) |
 | `pitlabs.css` / `dashboard.css` | Token desain, override Bootstrap, komponen PITLABS |
-| JavaScript murni | Validasi form klien, filter/cari tabel, aksi simulasi |
+| JavaScript murni | Tema, pemindai QR melalui `BarcodeDetector` bila didukung browser, input manual fallback, filter/cari tabel |
 | Composer | Dependensi PHP |
 
 ## D. Arsitektur proyek
 - **Route:** `routes/web.php`; publik, pelanggan (`auth` + `EnsureRole:customer`), admin (`auth` + `EnsureRole:admin`, prefix `/admin`).
-- **Controller:** tipis, hanya menyiapkan data lalu memanggil view.
-- **Data contoh (dipisah dari UI):** `app/Support/MockCatalog` (7 produk), `MockAvailability` (jadwal booking contoh + aturan bentrok), `MockData` (pesanan, pelanggan, antrean, KPI, grafik). View hanya menerima array; mengganti ke database tidak perlu mengubah UI.
-- **Layout:** `layouts/app` (situs publik) dan `layouts/dashboard` (admin dan pelanggan; tema dipilih dari URL).
+- **Controller:** mengelola validasi, otorisasi dan orkestrasi alur; transaksi dan perubahan status penting memakai database transaction serta audit log.
+- **Sumber data operasional:** katalog, inventaris, pesanan, reservasi, invoice, pembayaran, inspeksi, denda, antrean, KPI dan laporan pada halaman yang dialihkan ke implementasi terbaru dibaca dari database. Kelas `Mock*` lama boleh tersisa sebagai kode legacy untuk bagian yang belum dipensiunkan, tetapi tidak boleh dipakai untuk mengisi transaksi/dashboard aktual.
+- **Layout:** `layouts/app` (situs publik) dan `layouts/dashboard` (admin dan pelanggan); pilihan tema terang/gelap disimpan di browser, admin tetap Navy × Yellow dan pelanggan Sapphire.
 - **Komponen:** `x-field`, `x-modal`, `x-alert`, `x-status-badge`, `x-empty-state`, `x-pending`, `x-breadcrumb`, `x-product-card`, `x-terms-checkbox`; dashboard: `x-dash.page-header|stat|panel|table|bars`.
 - **Konfigurasi:** `config/pitlabs.php` memegang identitas, navigasi, dan seluruh label status.
 - **CSS/JS:** token di `:root` pada `pitlabs.css`; gaya halaman di `public/assets/css/pages/`; dashboard di `dashboard.css`. Prefix kelas: `pit-` (situs), `dash-` (dashboard).
 - **Penanda data belum ada:** `<x-pending field="...">`. Cari: `grep -r "data-needs-data" resources/views`.
-- **Frontend ↔ backend:** frontend memanggil controller; Fase 5 mengganti `Mock*` bertahap (autentikasi sudah diganti di 5A). Jangan membuat logika bisnis di view.
+- **Frontend ↔ backend:** frontend memanggil route/controller dan service; alur bisnis tidak diletakkan di view. Detail produk memerlukan autentikasi; setelah login, pengguna dikembalikan ke halaman detail yang diminta.
 
 ## E. Design system
 Rincian token, komponen, dan aturan: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md). Ringkas:
@@ -45,20 +45,39 @@ Rincian token, komponen, dan aturan: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md). Ringk
 - **Status:** order, pembayaran, pengambilan, penyewaan **selalu terpisah**; badge = ikon + teks.
 
 ## F. Sistem
-**Hak akses:** guest (katalog, cek ketersediaan), customer (pesan, dashboard), admin (operasional, laporan). Ditegakkan di server oleh middleware `auth` + `EnsureRole`.
 
-| Kategori | Item |
-|---|---|
-| Diimplementasikan (frontend) | Semua halaman pada README, validasi form klien, filter/cari tabel, modal konfirmasi, cetak invoice, SEO dasar (title/meta, canonical, sitemap, robots, JSON-LD) |
-| Diimplementasikan (backend, 5A) | Registrasi, login/logout, hash kata sandi, role, akun nonaktif, throttle login, profil, ganti kata sandi, aktif/nonaktifkan pelanggan, seeder 7 produk dan unit contoh, tes autentikasi |
-| Simulasi (tampil, tidak tersimpan) | Tombol Google login, aksi tabel admin selain pelanggan, checkout, antrean, QR invoice, data dashboard, katalog (masih `MockCatalog`) |
-| Perlu backend (5B dst.) | Google OAuth, katalog dari DB dan CRUD produk/unit, pesanan, pencegahan bentrok di server, payment gateway + webhook, scan QR kamera, laporan nyata, audit trail, pengingat WA/email |
-| Belum disepakati / data menunggu mitra | Tarif sewa dan jual, nominal denda, deposit, durasi min/maks, alamat dan jam pengambilan, URL Shopee, pilihan payment gateway, kebijakan refund dan pembatalan, foto dan spesifikasi produk |
+**Hak akses:** guest dapat melihat homepage, katalog dan cek ketersediaan; detail produk memerlukan login. Customer dapat checkout, melihat invoice/pesanan/antrean/profil. Admin dapat mengelola katalog dan menjalankan operasi rental. Otorisasi ditegakkan di server oleh middleware `auth` + `EnsureRole` dan pemeriksaan kepemilikan invoice.
 
-Aturan bisnis resmi: BUSINESS_RULES.md pada Documentation Pack (status terpisah, COD, bentrok periode `new_start < existing_end AND new_end > existing_start`, inspeksi sebelum denda).
+| Area | Source tersedia | Status verifikasi |
+|---|---|---|
+| Registrasi/login/logout, role, profil, akun pelanggan | Diimplementasikan | Tes dari batch terdahulu perlu regresi setelah patch |
+| Katalog, CRUD produk/unit, upload foto, SEO | Diimplementasikan | Perlu tes regresi |
+| Booking/reservasi, pencegahan bentrok, checkout COD, invoice QR | Diimplementasikan | Belum teruji end-to-end pada source terbaru |
+| Verifikasi pembayaran COD | Diimplementasikan; jumlah diterima direkam hanya sesuai uang yang benar-benar diterima dan keputusan mitra | Belum diuji pada instalasi penuh |
+| QR scanner | Payload QR HMAC + hash invoice DB; manual invoice number sebagai fallback; scan tidak mengubah status | Uji kamera lintas-browser belum dilakukan |
+| Pengambilan/pengembalian/inspeksi | Diimplementasikan dengan status terpisah, audit dan bukti pemeriksaan privat | Belum diuji pada alur fisik |
+| Denda | Catatan tanpa nominal; admin mengisi nominal berdasarkan kebijakan yang disahkan | Kebijakan mitra belum tersedia |
+| Antrean rental | Data DB dan transisi WAITING/NOTIFIED/FULFILLED/CANCELLED | Notifikasi eksternal tidak dikirim otomatis |
+| Dashboard/laporan | Query pembayaran terverifikasi, denda paid, inventaris dan pesanan DB | Belum direkonsiliasi dengan data operasional |
+| Light/dark mode | Layout publik dan dashboard | Perlu uji visual dan perangkat |
 
-## F2. Basis data (5A)
-Tabel yang sudah ada: `users`, `categories`, `products`, `inventory_units` (+ tabel bawaan Laravel: `sessions`, `cache`, `jobs`, `password_reset_tokens`). Mengikuti [schema.sql pada Documentation Pack], dengan dua penyesuaian: kolom kata sandi bernama `password` (konvensi Laravel, bukan `password_hash`) dan nullable (akun Google); `users.google_id` ditambahkan untuk 5B. Role: `CUSTOMER` | `ADMIN`. Tabel pesanan, reservasi, pembayaran, invoice, serah-terima, pemeriksaan, denda, dan audit dibuat pada batch berikutnya. Seeder bawaan: 2 kategori, 7 produk (tanpa harga/spesifikasi), 15 unit contoh. **Akun admin dibuat manual** (`php artisan pitlabs:create-admin` atau `AdminSeeder` yang membaca `.env`); tidak ada akun yang dibuat otomatis.
+### Pembayaran dan tarif
+- Hanya COD dapat diverifikasi melalui admin. QRIS/Virtual Account memerlukan provider, kredensial dan webhook; belum diaktifkan.
+- Jika total belum ditetapkan, aplikasi tidak membuat tarif. Admin mencatat uang COD yang benar-benar diterima sesuai persetujuan mitra.
+- Denda disimpan `PENDING_REVIEW` tanpa nominal sampai admin membuat keputusan sesuai kebijakan mitra. Tidak ada rumus tarif yang dikarang.
+- Transaksi pembelian melalui Shopee berada di luar PITLABS dan tidak dihitung pada laporan rental.
+
+### Status dan integritas
+- Status pesanan, pembayaran, pengambilan, dan penyewaan selalu terpisah.
+- Scan QR/manual hanya menampilkan data invoice hasil validasi. Perubahan pickup memerlukan aksi konfirmasi admin yang terpisah.
+- Produk, unit, dan pesanan tidak dihapus permanen; gunakan nonaktif/pensiun agar histori dan foreign key terjaga.
+- Seeder bawaan hanya menambahkan kategori taksonomi dasar; `ProductSeeder`, `InventoryUnitSeeder`, dan `UserSeeder` lama dibuat no-op. Produk, unit, pelanggan dan transaksi nyata disediakan melalui data mitra dan aktivitas pengguna.
+
+### Skema transaksi
+Tabel rental inti: `settings`, `rental_orders`, `rental_order_items`, `reservations`, `invoices`, `payments`, `audit_logs`. Tabel operasional tambahan: `rental_inspections`, `rental_fines`, `rental_waitlist_entries`. Migration rekonsiliasi 17 November dirancang membuat hanya tabel yang belum ada dan tidak menghapus tabel/data yang sudah tersedia.
+
+**Catatan pengujian:** source archive yang diterima tidak memuat `artisan`, `composer.json`, `composer.lock`, `bootstrap/`, `.env`, atau `vendor/`; karena itu uji migration, kompilasi Blade dan PHPUnit perlu dijalankan pada instalasi Laravel lengkap.
+
 
 ## G. Catatan perkembangan
 Lihat [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md) (kronologis, dengan file terdampak). Tanggal hanya dicatat jika diketahui; belum ada riwayat commit yang dapat diverifikasi dari dokumentasi ini.

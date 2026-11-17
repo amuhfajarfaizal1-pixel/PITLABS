@@ -1,7 +1,7 @@
 # AGENTS.md — Pedoman wajib untuk AI agent dan developer
 
 ## A. Konteks
-PITLABS: platform web penyewaan perangkat AI/IoT (sewa internal + beli via Shopee). Stack **Laravel + Blade + Bootstrap 5**. **Fase saat ini: frontend selesai sampai Fase 4; backend dikerjakan bertahap sejak 5A (database + autentikasi).** Ringkasan di [README.md](README.md), detail di [docs/PROJECT_DOCUMENTATION.md](docs/PROJECT_DOCUMENTATION.md).
+PITLABS: platform web penyewaan perangkat AI/IoT (sewa internal + beli via Shopee). Stack **Laravel + Blade + Bootstrap 5**. **Status source per 17 November 2026: 5A–5B, 5C-1, dan implementasi source 5C-2/5E serta tema terang/gelap tersedia; uji integrasi masih wajib dilakukan pada instalasi Laravel lengkap.** Ringkasan di [README.md](README.md), detail di [docs/PROJECT_DOCUMENTATION.md](docs/PROJECT_DOCUMENTATION.md).
 
 ## B. Aturan wajib
 1. Baca [README.md](README.md), [docs/PROJECT_DOCUMENTATION.md](docs/PROJECT_DOCUMENTATION.md), [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md), dan file ini **sebelum** mengubah apa pun.
@@ -27,17 +27,17 @@ Jangan mengganti palet, identitas visual, atau struktur layout; jangan membuat v
 - Blade dan komponen di `resources/views`; gunakan komponen yang ada sebelum membuat baru. Nama kelas berprefiks `pit-` (situs) atau `dash-` (dashboard); nama route berbahasa Inggris bertitik (`admin.orders.new`), URL berbahasa Indonesia.
 - CSS per halaman di `public/assets/css/pages/`; hindari duplikasi dan `!important`. JS tanpa pustaka tambahan kecuali disetujui.
 - Teks antarmuka Bahasa Indonesia. Aksesibilitas dasar wajib: label, fokus terlihat, target sentuh ≥ 44 px, `aria-*`.
-- Controller tipis; data dari `app/Support/Mock*` sampai Fase 5.
+- Controller sebaiknya tipis; halaman yang sudah dialihkan ke backend harus menggunakan database, bukan `app/Support/Mock*`. Kelas Mock legacy hanya dipertahankan jika masih digunakan halaman yang belum dialihkan dan tidak boleh menjadi sumber data transaksi/dashboard operasional.
 - Setiap tautan/tombol harus berfungsi atau dijelaskan (jangan tombol mati).
 
 ## E. Frontend dan backend
-Pemilik telah mengizinkan backend **bertahap**, hanya untuk batch yang disetujui. Selesai: **5A** (migration users/categories/products/inventory_units, seeder, Laravel Auth, role CUSTOMER/ADMIN, profil dan ganti kata sandi, daftar pelanggan admin). **Belum disetujui:** katalog dari database + CRUD admin (5B), Google OAuth, booking dan checkout, payment gateway/webhook, pengambilan/pengembalian/denda/laporan.
-- Kerjakan satu batch per persetujuan; jangan melompat ke batch berikutnya.
-- Setiap batch menggantikan **satu** kelas `Mock*` tanpa mengubah tampilan; hapus kelas simulasi hanya setelah tidak ada yang memakainya (`grep`).
+Pemilik mengizinkan backend bertahap. Status historis dan source saat ini: **5A** (database dasar, autentikasi, role, profil), **5B** (katalog database, CRUD produk/unit dan foto), **5C-1** (booking, reservasi, checkout COD, invoice dan QR token) telah diimplementasikan pada source terdahulu. Pada 17 November 2026, pemilik secara eksplisit mengizinkan batch gabungan implementasi **5C-2/5E/tema**: verifikasi pembayaran COD, scanner, pickup/return/inspeksi/denda/antrean, dashboard/laporan DB, proteksi detail produk, light/dark mode. Semua implementasi baru menunggu uji integrasi pada instalasi lengkap. Google OAuth dan payment gateway/webhook tetap belum tersedia karena provider/kredensial belum diberikan.
+- Kerjakan sesuai cakupan yang telah disetujui; untuk fitur/keputusan baru di luar cakupan, minta persetujuan.
+- Setiap kelas `Mock*` hanya boleh dipensiunkan setelah semua pemakai diperiksa (`grep`); halaman operasional yang sudah memakai DB tidak boleh fallback ke data contoh.
 - `role`, `is_active`, `google_id` tidak mass-assignable; jangan diubah. Otorisasi di server (`auth` + `EnsureRole`), bukan hanya menyembunyikan menu.
 - Kata sandi/rahasia tidak boleh ditulis di kode atau commit (`.env` tidak di-commit); repository GitHub bersifat publik. Akun admin dibuat manual lewat `php artisan pitlabs:create-admin`; jangan menambahkan pembuatan akun otomatis ke seeder bawaan. Tambahkan tes untuk perilaku baru. Kelas tes yang menyentuh database wajib memakai `RefreshDatabase`; fixture dengan email sama dalam satu tes tidak boleh dibuat dua kali (kolom `users.email` unik dan tidak boleh dilonggarkan).
 - Perubahan skema lewat migration baru; jangan mengedit migration yang sudah dijalankan.
-- Sejak 5C-1: booking, reservasi, invoice, pembayaran awal, dan pengaturan memakai database. Masih `Mock*`: halaman admin (pesanan, pembayaran, pengambilan, pengembalian, pemeriksaan, denda, laporan), antrean, dan KPI dashboard admin (5C-2 dan 5E). Produk, unit, dan pesanan tidak boleh dihapus (hanya nonaktif/pensiun).
+- Sejak 5C-1: booking, reservasi, invoice, pembayaran awal, dan pengaturan memakai database. Source 17-11 menambahkan implementasi 5C-2/5E untuk verifikasi COD, scanner invoice, pickup/return/inspection/fines/waitlist, dashboard/laporan DB, proteksi detail produk dan light/dark mode; integrasi masih menunggu uji pada instalasi lengkap. QRIS/VA, gateway/webhook dan notifikasi eksternal belum tersedia. Produk, unit, dan pesanan tidak boleh dihapus (hanya nonaktif/pensiun).
 
 ## F. Dokumentasi
 Setiap pekerjaan selesai: perbarui [docs/DEVELOPMENT_LOG.md](docs/DEVELOPMENT_LOG.md) (fase, file terdampak, status, yang masih simulasi) dan dokumen terkait. Jangan mengklaim "selesai" jika belum diuji.
@@ -60,3 +60,7 @@ Jangan melewati langkah 2–3 karena merasa sudah paham proyek.
 6. **Pengiriman hasil:** kirim hanya file yang berubah atau baru beserta jalur tujuannya, bukan satu zip utuh.
 7. **Dokumentasi untuk logbook:** catat tiap bagian yang benar-benar selesai di `docs/DEVELOPMENT_LOG.md`, `docs/LOGBOOK_NOTES.md`, `docs/REPORT_NOTES.md`, `docs/SCREENSHOT_GUIDE.md`. Jangan mengarang tanggal atau kegiatan; tanggal logbook memakai WITA (log sandbox memakai UTC); yang tidak dapat dipastikan ditandai "belum terverifikasi". Target mingguan mengacu pada spreadsheet logbook pemilik dan tidak boleh diubah urutannya; pekerjaan yang mendahului jadwal dicatat sebagai "dipercepat".
 8. **Prioritas pemilik:** (1) backend sesuai target logbook, (2) scan invoice yang benar-benar berfungsi (kamera dan input manual, terhubung database, pemindaian tidak mengubah status transaksi otomatis), (3) light/dark mode di seluruh halaman dengan identitas dashboard tetap berbeda, (4) pengujian dan perbaikan bug, (5) dokumentasi.
+
+
+## Status persetujuan pemilik — 17 November 2026
+Pemilik secara eksplisit meminta pengerjaan langsung seluruh cakupan tersisa: scanner QR kamera/manual dan verifikasi DB, backend pembayaran/pengambilan/pengembalian/pemeriksaan/denda, dashboard/laporan database, dan light/dark mode. Cakupan source 17-11 telah diimplementasikan sebagai patch. Pengujian integrasi belum dapat dinyatakan selesai sampai dijalankan pada instalasi Laravel penuh.

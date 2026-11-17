@@ -4,27 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rules\Password;
 use App\Exceptions\BookingException;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\RentalOrder;
 use App\Support\Availability;
 use App\Support\BookingService;
-use App\Support\InvoiceQr;
-use App\Support\Pit;
 use App\Support\Catalog;
-use App\Support\MockData;
+use App\Support\InvoiceQr;
+use App\Models\RentalWaitlistEntry;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
-/**
- * Halaman pelanggan (Fase 4B) — TAMPILAN dengan data contoh.
- * Checkout hanya membuat "pesanan simulasi" di session; tidak ada database.
- */
+/** Halaman pelanggan. Pesanan, antrean, dan invoice dibaca dari database produksi. */
 class CustomerController extends Controller
 {
     /** Data pengguna untuk view (array agar view tidak bergantung pada bentuk model). */
@@ -105,7 +100,7 @@ class CustomerController extends Controller
             'active'    => array_values(array_filter($orders, fn ($o) => in_array($o['rental'], ['RENTING', 'DUE_SOON', 'OVERDUE'], true))),
             'upcoming'  => array_values(array_filter($orders, fn ($o) => $o['rental'] === 'NOT_STARTED' && $o['order'] !== 'CANCELLED')),
             'history'   => $orders,
-            'reminders' => MockData::reminders(),
+            'reminders' => [],
         ]);
     }
 
@@ -131,40 +126,45 @@ class CustomerController extends Controller
 
     public function waitlist(): View
     {
-        $mine = array_values(array_filter(MockData::waitlist(), fn ($w) => $w['customer'] === 'Pelanggan Demo'));
-        $added = session('pit_demo_waitlist', []);
-
-        return view('dashboard.waitlist', ['rows' => array_merge($added, $mine)]);
+        $rows = RentalWaitlistEntry::with('product')->where('user_id', Auth::id())->latest()->get()->map(function (RentalWaitlistEntry $entry) {
+            return [
+                'id' => $entry->id,
+                'product' => $entry->product?->name ?? '-',
+                'period' => $entry->start_at->timezone(Availability::TZ)->locale('id')->translatedFormat('j M Y').' – '.$entry->end_at->timezone(Availability::TZ)->locale('id')->translatedFormat('j M Y'),
+                'days' => (int) $entry->start_at->diffInDays($entry->end_at).' hari',
+                'status' => $entry->status,
+            ];
+        })->all();
+        return view('dashboard.waitlist', ['rows' => $rows]);
     }
 
-    /** Simulasi: masuk antrean saat semua unit bentrok. Fase 5: simpan ke tabel antrean. */
+    /** Antrean disimpan hanya saat semua unit aktif bentrok pada periode yang diminta. */
     public function waitlistStore(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'produk' => ['required', 'string', 'max:100'],
-            'mulai'  => ['required', 'date_format:Y-m-d'],
+            'produk' => ['required', 'string', 'max:200'],
+            'mulai' => ['required', 'date_format:Y-m-d'],
             'durasi' => ['required', 'integer', 'min:1', 'max:90'],
             'satuan' => ['required', 'in:hari,minggu,bulan'],
         ]);
-
-        $product = Catalog::find($data['produk']) ?? abort(422);
-        $start = CarbonImmutable::createFromFormat('Y-m-d', $data['mulai'], Availability::TZ)->startOfDay();
+        $product = Product::active()->where('slug', $data['produk'])->firstOrFail();
+        abort_if($product->isDigital(), 422, 'Antrean untuk layanan digital belum tersedia.');
+        $start = Availability::startOf($data['mulai']);
+        if (! $start || $start < Availability::today()) return back()->withInput()->withErrors(['mulai' => 'Tanggal mulai tidak valid.']);
         $n = (int) $data['durasi'];
-        $end = match ($data['satuan']) {
-            'minggu' => $start->addWeeks($n),
-            'bulan'  => $start->addMonthsNoOverflow($n),
-            default  => $start->addDays($n),
-        };
-        $fmt = fn (CarbonImmutable $d) => $d->locale('id')->translatedFormat('j M');
-
-        $list = session('pit_demo_waitlist', []);
-        array_unshift($list, [
-            'id' => 100 + count($list), 'customer' => 'Pelanggan Demo', 'product' => $product['name'],
-            'period' => $fmt($start).' – '.$fmt($end), 'days' => (int) $start->diffInDays($end).' hari', 'status' => 'WAITING',
-        ]);
-        session(['pit_demo_waitlist' => $list]);
-
-        return redirect()->route('dashboard.waitlist')->with('status', 'Anda masuk antrean (simulasi). Kami memberi tahu saat unit tersedia.');
+        $end = match ($data['satuan']) { 'minggu' => $start->addWeeks($n), 'bulan' => $start->addMonthsNoOverflow($n), default => $start->addDays($n) };
+        $units = Availability::check($product->slug, $start, $end) ?? [];
+        if ($units === []) return back()->withInput()->withErrors(['produk' => 'Belum ada unit inventaris aktif untuk produk ini. Antrean belum dapat dibuat.']);
+        if (count(array_filter($units, fn ($u) => $u['free'])) > 0) return back()->withInput()->withErrors(['produk' => 'Masih ada unit yang tersedia pada periode tersebut. Silakan lanjutkan booking.']);
+        try {
+            RentalWaitlistEntry::firstOrCreate([
+                'user_id' => $request->user()->id, 'product_id' => $product->id,
+                'start_at' => $start->utc(), 'end_at' => $end->utc(),
+            ], ['status' => 'WAITING']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return back()->withInput()->withErrors(['produk' => 'Permintaan antrean ini sudah tercatat.']);
+        }
+        return redirect()->route('dashboard.waitlist')->with('status', 'Permintaan antrean tersimpan di database. Pemberitahuan ketersediaan belum dikirim otomatis.');
     }
 
     public function returns(): View
@@ -177,7 +177,7 @@ class CustomerController extends Controller
         return view('dashboard.profile', ['user' => $this->userData()]);
     }
 
-    /* ---------- Checkout (simulasi) ---------- */
+    /* ---------- Checkout rental dari katalog database ---------- */
 
     public function checkout(Request $request): View
     {
@@ -268,22 +268,10 @@ class CustomerController extends Controller
                 'o'           => $invoice->order->toViewArray(),
                 'qrSvg'       => InvoiceQr::svg($invoice->invoice_number),
                 'qrAvailable' => InvoiceQr::available(),
-                'qr'          => null,
                 'issued'      => CarbonImmutable::createFromInterface($invoice->issued_at)->setTimezone(Availability::TZ)->locale('id')->translatedFormat('j F Y'),
             ]);
         }
 
-        // Invoice CONTOH milik halaman admin yang masih memakai data contoh (sampai 5C-2).
-        $sample = config('pitlabs.demo_mode') && str_starts_with($number, 'INV-CONTOH-') ? MockData::order($number) : null;
-        abort_if(! $sample, 404);
-
-        $sample['start_full'] = $sample['start']->locale('id')->translatedFormat('j F Y');
-        $sample['end_full'] = $sample['end']->locale('id')->translatedFormat('j F Y');
-        $sample['days'] = (int) $sample['start']->diffInDays($sample['end']);
-
-        return view('invoice', [
-            'o' => $sample, 'qrSvg' => null, 'qrAvailable' => true, 'qr' => Pit::qrPlaceholder($number),
-            'issued' => Availability::today()->locale('id')->translatedFormat('j F Y'),
-        ]);
+        abort(404);
     }
 }

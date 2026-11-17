@@ -64,11 +64,6 @@
             @if ($qrSvg)
                 <div class="pit-invoice__qrbox" role="img" aria-label="QR verifikasi invoice {{ $o['invoice'] }}">{!! $qrSvg !!}</div>
                 <figcaption class="small text-muted-pit mt-1">QR verifikasi. Tunjukkan kepada admin saat pengambilan.</figcaption>
-            @elseif ($qr)
-                <svg class="pit-invoice__qr" viewBox="0 0 25 25" role="img" aria-label="Contoh tampilan QR (data contoh, tidak dapat dipindai)" shape-rendering="crispEdges">
-                    @foreach ($qr as $y => $row)@foreach ($row as $x => $on)@if ($on)<rect x="{{ $x }}" y="{{ $y }}" width="1" height="1"/>@endif @endforeach @endforeach
-                </svg>
-                <figcaption class="small text-muted-pit mt-1">QR contoh (invoice data contoh)</figcaption>
             @else
                 <x-alert type="warning" title="QR belum tersedia">Paket pembuat QR belum terpasang. Jalankan <span class="pit-mono">composer require bacon/bacon-qr-code</span>. Nomor invoice tetap dapat dipakai admin untuk pencarian manual.</x-alert>
             @endif

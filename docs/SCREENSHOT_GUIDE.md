@@ -20,3 +20,19 @@ Foto produk (bila diunggah): satu gambar halaman detail produk dengan foto, `m4-
 
 ## Minggu ke-5 (diisi setelah fitur selesai)
 Scan invoice, checkout dan invoice, verifikasi pembayaran, pengambilan dan pengembalian, light/dark mode: panduan ditambahkan saat fiturnya selesai dan diuji.
+
+
+## Minggu ke-5 — bukti backend operasional (ambil setelah tes benar-benar berhasil)
+| # | Buka | Harus terlihat | Membuktikan | Nama file |
+|---|---|---|---|---|
+| 1 | Terminal `php artisan migrate:status` dan phpMyAdmin | Migration rental berstatus Ran dan tabel order/item/reservations/invoice/payments/audit tersedia | Skema rental berhasil terbentuk | `m5-01-tabel-rental.png` |
+| 2 | Customer checkout lalu phpMyAdmin | Satu invoice/order yang sama tersambung ke item, reservasi, payment dan audit log | Booking masuk database, bukan hanya notifikasi | `m5-02-booking-database.png` |
+| 3 | Detail produk saat logout lalu login | Guest diarahkan ke login dan setelah login kembali ke slug produk tujuan | Proteksi akses dan intended redirect | `m5-03-login-detail-produk.png` |
+| 4 | Admin → QR Scanner | Kamera aktif atau input payload/nomor invoice; hasil cocok dengan invoice DB | Verifikasi QR/manual | `m5-04-qr-verifikasi.png` |
+| 5 | Admin → Pembayaran dan Pengambilan | COD PAID; setelah scan, admin menekan konfirmasi dan pickup berubah | Status pembayaran dan pickup terpisah | `m5-05-cod-pickup.png` |
+| 6 | Admin → Pengembalian → Pemeriksaan | Return diterima; catatan kondisi dan bukti privat tersimpan; unit berubah status | Siklus pengembalian dan inspeksi | `m5-06-return-inspeksi.png` |
+| 7 | Admin → Denda | Catatan pending tanpa nominal, lalu nominal diisi hanya sesuai keputusan mitra | Denda tidak dibuat otomatis | `m5-07-denda.png` |
+| 8 | Admin → Dashboard/Laporan | KPI, tabel dan pendapatan berubah mengikuti transaksi yang benar-benar ada | Dashboard/laporan database | `m5-08-dashboard-laporan.png` |
+| 9 | Situs publik, invoice, dashboard pelanggan/admin | Tema terang/gelap terlihat; aksen pelanggan dan admin tetap berbeda | Tema lintas halaman | `m5-09-tema-terang-gelap.png` |
+
+Jangan memakai transaksi atau foto data fiktif sebagai bukti penggunaan nyata. Untuk tes otomatis, gunakan database tes terisolasi; untuk screenshot sistem, gunakan akun dan data uji yang diberi label jelas atau data operasional yang diizinkan mitra.

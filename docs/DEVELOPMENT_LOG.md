@@ -1,3 +1,13 @@
+## 2026-11-17 — Fase 5C-2, 5E, pemindaian invoice dan tema (source; menunggu uji integrasi)
+- Cakupan yang diminta pemilik: booking tersimpan ke database, detail produk wajib login, scanner QR kamera dan manual dengan verifikasi database (scan tidak mengubah status), backend operasional pembayaran/pengambilan/pengembalian/inspeksi/denda, antrean, dashboard/laporan transaksi nyata, serta tema terang/gelap.
+- Added: migration rekonsiliasi non-destruktif untuk tabel rental inti yang hilang meskipun migration lama tercatat; migration kolom serah-terima/pengembalian serta tabel inspeksi, denda, antrean.
+- Added: controller operasional database; kamera QR berbasis `BarcodeDetector` browser + input manual; verifikasi HMAC dan hash token invoice; aksi pickup terpisah setelah verifikasi dan pembayaran lunas, dengan masa berlaku hasil scan lima menit; pemeriksaan kondisi dan bukti file privat; unit ditahan dalam status perawatan sampai pemeriksaan selesai; denda tanpa nilai default dan pencatatan lunas dengan nominal yang harus cocok; dashboard/laporan dari pembayaran terverifikasi; tema tersimpan di browser dan mengikuti preferensi OS bila belum dipilih.
+- Safety detail: setelah pengembalian, unit ditahan pada status `MAINTENANCE` sampai inspeksi menyatakan kondisi `GOOD`; nominal pembayaran denda yang ditandai lunas wajib sama dengan nominal yang telah ditetapkan. KPI ketersediaan hari ini menghitung unit sibuk secara unik dan hanya unit dari produk aktif yang dapat disewa.
+- Changed: detail produk dilindungi middleware `auth` dan login kembali ke URL tujuan; `DatabaseSeeder` tidak lagi membuat produk, unit, pelanggan atau transaksi contoh; invoice tidak menampilkan QR dummy; state antrean mendukung diberi tahu/terpenuhi/dibatalkan.
+- Safety/business rules: COD saja yang dapat diverifikasi manual; QRIS/VA belum tersambung provider. Nominal yang belum tersedia diisi hanya berdasarkan uang yang benar-benar diterima/keputusan resmi admin, bukan dibuat aplikasi. Denda ditahan pada status review tanpa nominal sampai admin memiliki kebijakan mitra. Produk/unit/pesanan tetap tidak dapat dihapus permanen sesuai `AGENTS.md`.
+- File terdampak: `app/Http/Controllers/{AdminController,AuthController,CustomerController}.php`, model rental operation, migrations 17 Nov, `routes/web.php`, `config/pitlabs.php`, seeder, view admin/invoice/layout/navbar/table, assets JS/CSS, tests, README dan docs.
+- Verifikasi penyusunan: PHP lint dan pemeriksaan sintaks JS dijalankan setelah patch. **Integrasi Artisan/MySQL dan PHPUnit belum dijalankan**, karena arsip yang diberikan adalah source overlay tanpa `artisan`, `composer.json`, `composer.lock`, `bootstrap/`, `.env`, dan `vendor/`. Jangan anggap fitur sudah diuji atau siap produksi sebelum pengujian instalasi lengkap.
+
 # Development Log — PITLABS
 
 ## 2026-11-15 — Fase 5C-1: booking, checkout, invoice ber-QR (belum diuji)
@@ -133,3 +143,17 @@
 - API:
 - Tests:
 - Documentation updated:
+
+
+### 2026-11-17 — Fase 5C-2 / operasional rental (implementasi pada source overlay)
+- Added: migration rekonsiliasi non-destruktif untuk tabel inti 5C-1; migration waktu pickup/return, pemeriksaan, denda, dan antrean rental.
+- Added: model RentalInspection, RentalFine, dan RentalWaitlistEntry.
+- Changed: AdminController kini membaca data operasional dari database; pembayaran COD diverifikasi admin; pickup membutuhkan pembayaran lunas dan konfirmasi manual; return merekam timestamp dan melepas reservasi; inspeksi menyimpan kondisi/bukti privat dan memperbarui status unit; denda tidak menetapkan tarif otomatis.
+- Added: QR scanner kamera berbasis BarcodeDetector dan input manual; payload QR diverifikasi dengan HMAC lalu dicocokkan ke token hash invoice database. Scan tidak mengubah status; tombol konfirmasi terpisah.
+- Changed: halaman dashboard dan laporan memakai query transaksi nyata; antrean disimpan database; customer dashboard tidak lagi menampilkan data contoh.
+- Changed: klik detail produk mewajibkan login dan login kembali ke URL tujuan.
+- Added: light/dark mode yang menyimpan pilihan perangkat pada seluruh layout publik dan dashboard; identitas aksen admin dan pelanggan dipertahankan.
+- Changed: DatabaseSeeder hanya membuat kategori taksonomi; tidak lagi menambahkan katalog produk atau unit contoh.
+- Tests: ditambahkan skenario alur operasi admin (pembayaran, scanner, pickup, return, inspeksi, denda), masa berlaku scanner, perlindungan sesi dari QR salah, no-op seeder, dan akses detail produk. Helper tes yang bentrok dengan `TestCase::options()` diganti menjadi `adminArgs()`.
+- Verification: belum dapat menjalankan Artisan/PHPUnit pada paket sumber ini karena arsip tidak menyertakan instalasi Laravel lengkap (`artisan`, `composer.json`, `bootstrap/`, dan `vendor/`). Pemeriksaan sintaks lokal dilakukan terpisah; integrasi harus diuji pada proyek Laravel penuh.
+- Still pending: payment gateway/webhook QRIS/VA, notifikasi WA/email, tarif/denda baku dari mitra, integrasi penjualan Shopee, dan konfirmasi browser perangkat kamera.

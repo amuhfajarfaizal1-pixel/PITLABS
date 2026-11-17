@@ -1,5 +1,5 @@
 {{--
-    Tabel data dashboard (cari, filter status, aksi simulasi).
+    Tabel data dashboard (cari, filter status, tautan dan formulir aksi server).
     columns: [['key','label','type'(text|mono|stack|status|money|pending|actions),'group'?,'class'?]]
     rows   : array; baris boleh punya '_sim' => [kolom => status sesudah] dan '_actions' => [[label,variant,href?,sim?[title,text,message]]]
     Slot 'filters' (opsional): <select data-pit-table-filter data-key="payment"> ...
@@ -63,6 +63,9 @@
                                             @elseif (isset($a['form']))
                                                 <form method="POST" action="{{ $a['form']['action'] }}" class="d-inline" @if (! empty($a['form']['confirm'])) onsubmit="return confirm(@js($a['form']['confirm']))" @endif>
                                                     @csrf
+                                                    @foreach (($a['form']['hidden'] ?? []) as $hiddenName => $hiddenValue)
+                                                        <input type="hidden" name="{{ $hiddenName }}" value="{{ $hiddenValue }}">
+                                                    @endforeach
                                                     <button type="submit" class="btn btn-sm btn-{{ $a['variant'] ?? 'soft' }}">{{ $a['label'] }}</button>
                                                 </form>
                                             @elseif (isset($a['href']))

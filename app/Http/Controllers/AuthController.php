@@ -110,6 +110,19 @@ class AuthController extends Controller
     private function destination(Request $request): string
     {
         $back = Pit::safePath($request->input('kembali'), '');
+        if ($back === '') {
+            $intended = $request->session()->pull('url.intended');
+            if (is_string($intended) && $intended !== '') {
+                $parts = parse_url($intended);
+                $host = $parts['host'] ?? null;
+                // Never send a customer to an external host. Laravel may store intended as an absolute URL.
+                if ($host === null || strcasecmp($host, $request->getHost()) === 0) {
+                    $path = $parts['path'] ?? '/';
+                    if (! empty($parts['query'])) $path .= '?'.$parts['query'];
+                    $back = Pit::safePath($path, '');
+                }
+            }
+        }
         if ($back !== '') {
             return $back;
         }

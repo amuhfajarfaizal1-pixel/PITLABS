@@ -82,16 +82,21 @@ Keterangan: Jejak berkas: migration dibuat Jumat 13 Nov 17.19 WITA; BookingServi
 
 ---
 
-## MINGGU KE-5 (16–22 November 2026) — struktur, belum diisi
+
+Hari/Tanggal: Selasa, 17 November 2026 (WITA)
+Kegiatan: Memperluas implementasi backend PITLABS berdasarkan kebutuhan pengoperasian mitra: rekonsiliasi migration tabel rental, verifikasi pembayaran COD, QR scanner kamera dan input manual yang memeriksa invoice ke database, konfirmasi pengambilan, penerimaan pengembalian, pemeriksaan kondisi perangkat, pencatatan denda manual, pengelolaan antrean, dashboard/laporan dari transaksi database, proteksi detail produk dengan login, serta light/dark mode.
+Hasil: Source patch operasional dan dokumentasi diperbarui. Seeder bawaan tidak lagi membuat produk, unit, akun pelanggan, atau transaksi contoh. QR scan tidak mengubah status secara otomatis; konfirmasi pengambilan merupakan aksi terpisah.
+Keterangan: Sudah diimplementasikan pada source, tetapi belum diverifikasi end-to-end di instalasi Laravel lengkap. Paket source yang ditinjau tidak berisi `artisan`, `composer.json`, `composer.lock`, `bootstrap/`, `.env`, atau `vendor/`; hasil `php artisan migrate` dan `php artisan test` pemilik belum tersedia. Tarif, denda baku, dan payment gateway online tetap menunggu kebijakan/kredensial mitra.
+
+## MINGGU KE-5 (16–22 November 2026) — implementasi source mulai dicatat
 Target: pembuatan fitur utama, implementasi CRUD, database, SEO friendly.
 
-Rencana kegiatan (menunggu keputusan pemilik pada daftar di akhir dokumen ini):
-1. Booking dan pesanan di database, pencegahan bentrok jadwal.
-2. Checkout dan invoice bernomor unik dengan QR terverifikasi.
-3. Scan invoice di dashboard admin.
-4. Verifikasi pembayaran, pengambilan, pengembalian, pemeriksaan, dan denda.
-5. Dashboard dan laporan dari data sebenarnya.
-6. Light mode dan dark mode.
+Kegiatan yang sudah tercatat pada 17 November 2026 (status source, menunggu pengujian):
+1. Rekonsiliasi migration agar tabel rental inti yang hilang dapat dibuat tanpa menghapus tabel yang sudah ada.
+2. Implementasi verifikasi pembayaran COD, scanner QR kamera/manual yang memeriksa invoice di database, konfirmasi pengambilan terpisah, penerimaan pengembalian, inspeksi kondisi, dan catatan denda manual.
+3. Antrean rental, dashboard dan laporan berbasis query database.
+4. Proteksi detail produk dengan login dan redirect kembali ke detail produk setelah login.
+5. Light/dark mode pada layout publik dan dashboard dengan aksen identitas admin dan pelanggan tetap terpisah.
 
 ```
 Hari/Tanggal: [diisi setelah dikerjakan]
@@ -100,7 +105,13 @@ Hasil:
 Keterangan:
 ```
 
-Status pencapaian dan kendala: **[diisi setelah pekerjaan dilakukan]**.
+Status pencapaian: source sudah diimplementasikan; migration, tes otomatis, uji scanner lintas browser, dan alur end-to-end masih menunggu verifikasi pada instalasi Laravel penuh. Kendala: arsip source tidak berisi file instalasi Laravel inti; QRIS/VA dan kebijakan tarif/denda masih membutuhkan keputusan/kredensial mitra.
 
-## Keputusan pemilik yang masih ditunggu
-Lihat bagian "Keputusan" di akhir pesan pengembangan terakhir dan `docs/DEVELOPMENT_LOG.md`.
+## Informasi mitra/pemilik yang masih diperlukan
+1. Tarif sewa, deposit, durasi min/maks, pembatalan/refund, dan kebijakan nominal denda.
+2. Provider serta kredensial resmi jika pembayaran QRIS/Virtual Account diaktifkan.
+3. Aturan notifikasi dan kanal komunikasi (email/WhatsApp).
+4. Hosting/domain dan konfigurasi produksi untuk deployment.
+5. Hasil `php artisan migrate` dan `php artisan test` dari instalasi Laravel lengkap.
+
+Tidak ada data katalog/transaksi contoh yang dibuat dalam source patch.

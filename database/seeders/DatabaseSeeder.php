@@ -1,18 +1,12 @@
 <?php
-
 namespace Database\Seeders;
-
 use Illuminate\Database\Seeder;
-
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call([
-            CategorySeeder::class,
-            ProductSeeder::class,
-            InventoryUnitSeeder::class,
-            // Akun admin TIDAK dibuat otomatis: gunakan `php artisan pitlabs:create-admin`.
-        ]);
+        // Hanya kategori taksonomi dasar. Produk, unit, pelanggan, transaksi, dan admin
+        // tidak dibuat otomatis: seluruh data operasional harus berasal dari mitra/pengguna.
+        $this->call([CategorySeeder::class]);
     }
 }

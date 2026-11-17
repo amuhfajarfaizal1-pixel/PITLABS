@@ -31,7 +31,7 @@ return [
     ],
 
     // true selama login/registrasi/ketersediaan masih simulasi (Fase 4). Set false di Fase 5.
-    'demo_mode'   => true,
+    'demo_mode'   => false,
 
     // Data yang masih menunggu konfirmasi mitra → tampil sebagai "Informasi belum tersedia".
     'contact' => [
@@ -173,6 +173,13 @@ return [
             'MAJOR_ISSUE' => ['label' => 'Masalah berat',  'variant' => 'danger',  'icon' => 'bi-exclamation-triangle'],
             'DAMAGED'     => ['label' => 'Rusak',          'variant' => 'danger',  'icon' => 'bi-x-octagon'],
             'LOST'        => ['label' => 'Hilang',         'variant' => 'neutral', 'icon' => 'bi-question-circle'],
+        ],
+
+        'fine' => [
+            'PENDING_REVIEW' => ['label' => 'Menunggu penilaian', 'variant' => 'warning', 'icon' => 'bi-hourglass-split'],
+            'ASSESSED' => ['label' => 'Ditetapkan', 'variant' => 'info', 'icon' => 'bi-clipboard-check'],
+            'PAID' => ['label' => 'Dibayar', 'variant' => 'success', 'icon' => 'bi-check-circle-fill'],
+            'WAIVED' => ['label' => 'Dibebaskan', 'variant' => 'neutral', 'icon' => 'bi-slash-circle'],
         ],
 
         'account' => [
